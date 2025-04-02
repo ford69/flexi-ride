@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -9,56 +10,36 @@ class PaymentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function pay(Request $request)
     {
-        //
+        $booking = Booking::findOrFail($request->booking_id);
+
+        $payment = Payment::create([
+            'booking_id' => $booking->id,
+            'amount' => $booking->total_price,
+            'status' => 'pending',
+        ]);
+
+        $data = [
+            'amount' => $payment->amount * 100, // Convert to kobo
+            'email' => $request->user()->email,
+            'reference' => Paystack::genTranxRef(),
+            'currency' => 'NGN',
+            'callback_url' => route('payment.callback'),
+        ];
+
+        return Paystack::getAuthorizationUrl($data)->redirectNow();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function callback()
     {
-        //
-    }
+        $paymentDetails = Paystack::getPaymentData();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if ($paymentDetails['status'] === 'success') {
+            Payment::where('reference', $paymentDetails['data']['reference'])->update(['status' => 'successful']);
+            return response()->json(['message' => 'Payment successful']);
+        } else {
+            return response()->json(['message' => 'Payment failed'], 400);
+        }
     }
 }
