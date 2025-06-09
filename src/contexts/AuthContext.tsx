@@ -1,68 +1,14 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+} from 'react';
 import { User } from '../types';
 
-// This is a placeholder for API calls
-const api = {
-  login: async (email: string, password: string): Promise<{ user: User; token: string }> => {
-    // Mock implementation - will be replaced with actual API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockUser = {
-          id: '1',
-          name: 'John Doe',
-          email,
-          role: 'user' as const,
-          createdAt: new Date().toISOString(),
-        };
-        resolve({ user: mockUser, token: 'mock-token' });
-      }, 500);
-    });
-  },
-  register: async (
-    name: string,
-    email: string,
-    password: string,
-    role: 'user' | 'owner'
-  ): Promise<{ user: User; token: string }> => {
-    // Mock implementation - will be replaced with actual API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockUser = {
-          id: '1',
-          name,
-          email,
-          role,
-          createdAt: new Date().toISOString(),
-        };
-        resolve({ user: mockUser, token: 'mock-token' });
-      }, 500);
-    });
-  },
-  logout: async (): Promise<void> => {
-    // Mock implementation - will be replaced with actual API call
-    return new Promise((resolve) => {
-      setTimeout(resolve, 300);
-    });
-  },
-  getCurrentUser: async (): Promise<User | null> => {
-    // Mock implementation - will be replaced with actual API call
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockUser = {
-          id: '1',
-          name: 'John Doe',
-          email: 'john@example.com',
-          role: 'user' as const,
-          createdAt: new Date().toISOString(),
-        };
-        resolve(mockUser);
-      }, 500);
-    });
-  },
-};
+const AuthContext = createContext<AuthContextType | null>(null);
 
 interface AuthContextType {
   user: User | null;
@@ -74,38 +20,36 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const currentUser = await api.getCurrentUser();
-        setUser(currentUser);
-      } catch (err) {
-        console.error('Authentication error:', err);
-        setError('Failed to authenticate');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initAuth();
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    if (token && storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const { user, token } = await api.login(email, password);
-      localStorage.setItem('token', token);
-      setUser(user);
+      const res = await fetch('http://localhost:5001/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) throw new Error('Login failed');
+      const data = await res.json();
+      localStorage.setItem('user', JSON.stringify(data));
+      localStorage.setItem('token', data.token);
+      setUser(data);
     } catch (err) {
-      console.error('Login error:', err);
       setError('Invalid email or password');
       throw err;
     } finally {
@@ -114,14 +58,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (name: string, email: string, password: string, role: 'user' | 'owner') => {
+    console.log('🧪 Registering:', { name, email, password, role }); // 👈 Add this
+
     setIsLoading(true);
     setError(null);
     try {
-      const { user, token } = await api.register(name, email, password, role);
-      localStorage.setItem('token', token);
-      setUser(user);
+      const res = await fetch('http://localhost:5001/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role }),
+      });
+
+      if (!res.ok) throw new Error('Registration failed');
+      const data = await res.json();
+      localStorage.setItem('user', JSON.stringify(data));
+      localStorage.setItem('token', data.token);
+      setUser(data);
     } catch (err) {
-      console.error('Registration error:', err);
       setError('Failed to register');
       throw err;
     } finally {
@@ -130,36 +83,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    setIsLoading(true);
-    try {
-      await api.logout();
-      localStorage.removeItem('token');
-      setUser(null);
-    } catch (err) {
-      console.error('Logout error:', err);
-      setError('Failed to logout');
-    } finally {
-      setIsLoading(false);
-    }
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    setUser(null);
   };
 
-  const value = {
-    user,
-    isAuthenticated: !!user,
-    isLoading,
-    error,
-    login,
-    register,
-    logout,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, error, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export const useAuth = () => {
+// ✅ Named export using function declaration (stable for Fast Refresh)
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
-};
+}

@@ -19,10 +19,15 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
     defaultValues: {
       role: 'user',
-    }
+    },
   });
 
   const password = watch('password');
@@ -31,8 +36,13 @@ const RegisterPage: React.FC = () => {
     try {
       setAuthError(null);
       await registerUser(data.name, data.email, data.password, data.role);
-      navigate('/owner/dashboard');
-    } catch (error) {
+
+      // ✅ Redirect to login and show message
+      alert('Registration successful! Please log in.');
+      navigate('/login', { replace: true });
+    } catch (error:unknown) {
+      const message = error instanceof Error ? error.message : 'Registration failed';
+      console.error('Registration error:', message);
       setAuthError('Registration failed. Please try again.');
     }
   };
@@ -108,7 +118,7 @@ const RegisterPage: React.FC = () => {
               error={errors.confirmPassword?.message}
               {...register('confirmPassword', {
                 required: 'Please confirm your password',
-                validate: value => 
+                validate: (value) =>
                   value === password || 'The passwords do not match',
               })}
             />
@@ -117,11 +127,13 @@ const RegisterPage: React.FC = () => {
           <div>
             <label className="block text-sm font-medium text-gray-200 mb-1">I want to:</label>
             <div className="flex flex-col sm:flex-row gap-4">
-              <label className={`flex-1 p-3 border ${
-                watch('role') === 'user' 
-                  ? 'border-primary bg-primary/10' 
-                  : 'border-gray-700 hover:border-gray-600'
-              } rounded-md cursor-pointer transition-colors`}>
+              <label
+                className={`flex-1 p-3 border ${
+                  watch('role') === 'user'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-gray-700 hover:border-gray-600'
+                } rounded-md cursor-pointer transition-colors`}
+              >
                 <input
                   type="radio"
                   className="sr-only"
@@ -133,12 +145,14 @@ const RegisterPage: React.FC = () => {
                   <div className="text-sm text-gray-400">Browse and book vehicles</div>
                 </div>
               </label>
-              
-              <label className={`flex-1 p-3 border ${
-                watch('role') === 'owner' 
-                  ? 'border-primary bg-primary/10' 
-                  : 'border-gray-700 hover:border-gray-600'
-              } rounded-md cursor-pointer transition-colors`}>
+
+              <label
+                className={`flex-1 p-3 border ${
+                  watch('role') === 'owner'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-gray-700 hover:border-gray-600'
+                } rounded-md cursor-pointer transition-colors`}
+              >
                 <input
                   type="radio"
                   className="sr-only"

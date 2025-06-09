@@ -13,11 +13,12 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   return (
     <Card className="h-full flex flex-col transition-transform duration-300 hover:scale-[1.02]">
       <div className="relative">
-        <img 
-          src={car.images[0] || 'https://images.pexels.com/photos/6894427/pexels-photo-6894427.jpeg'} 
+        <img
+          src={car.images[0] ? `http://localhost:5001${car.images[0]}` : 'https://images.pexels.com/photos/6894427/pexels-photo-6894427.jpeg'}
           alt={`${car.make} ${car.model}`}
           className="h-48 w-full object-cover"
         />
+
         {!car.availability && (
           <div className="absolute top-0 right-0 bg-error px-2 py-1 text-xs font-semibold text-white">
             Not Available
@@ -28,7 +29,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
           <p className="text-white text-sm">{car.year}</p>
         </div>
       </div>
-      
+
       <div className="p-4 flex-grow">
         <div className="flex flex-col space-y-3 mb-4">
           <div className="flex items-center text-gray-300">
@@ -45,11 +46,11 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             <span className="text-sm ml-1">per day</span>
           </div>
         </div>
-        
+
         <div className="flex flex-wrap gap-2 mb-4">
           {car.features.slice(0, 3).map((feature, index) => (
-            <span 
-              key={index} 
+            <span
+              key={index}
               className="bg-background-light text-xs rounded-full px-2 py-1 text-gray-300"
             >
               {feature}
@@ -62,13 +63,14 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
           )}
         </div>
       </div>
-      
+
       <div className="p-4 border-t border-gray-700">
-        <Link to={`/cars/${car.id}`}>
+        <Link to={`/cars/${car._id}`}>
           <Button variant="primary" fullWidth>
             View Details
           </Button>
         </Link>
+
       </div>
     </Card>
   );

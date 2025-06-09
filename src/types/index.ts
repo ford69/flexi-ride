@@ -2,12 +2,13 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'owner' | 'admin';
+  role: "user" | "owner" | "admin";
   createdAt: string;
+  token: string; // ✅ Add this line
 }
 
 export interface Car {
-  id: string;
+  _id: string;
   ownerId: string;
   make: string;
   model: string;
@@ -29,7 +30,7 @@ export interface Booking {
   startDate: string;
   endDate: string;
   totalPrice: number;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  status: "pending" | "confirmed" | "completed" | "cancelled";
   createdAt: string;
 }
 

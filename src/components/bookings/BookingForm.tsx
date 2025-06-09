@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, DollarSign } from 'lucide-react';
+import axios, { AxiosError } from 'axios';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Card, { CardContent, CardHeader, CardFooter } from '../ui/Card';
@@ -11,12 +12,17 @@ interface BookingFormProps {
   car: Car;
 }
 
+interface ApiErrorResponse {
+  message: string;
+}
+
 const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const calculateDays = () => {
     if (!startDate || !endDate) return 0;
@@ -36,7 +42,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
     e.preventDefault();
     
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: `/cars/${car.id}` } });
+      navigate('/login', { state: { from: `/cars/${car._id}` } });
       return;
     }
     
@@ -45,15 +51,44 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
     }
     
     setIsSubmitting(true);
+    setError(null);
     
-    // This would be replaced with an actual API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      alert('Booking successful!');
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Booking error:', error);
-      alert('Failed to create booking. Please try again.');
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        'http://localhost:5001/api/bookings',
+        {
+          carId: car._id,
+          startDate,
+          endDate,
+          totalPrice: calculateTotalPrice(),
+          status: 'pending'
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data) {
+        navigate('/dashboard', { 
+          state: { 
+            bookingSuccess: true,
+            message: 'Booking request sent successfully! The owner will confirm your booking soon.' 
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Booking error:', err);
+      const axiosError = err as AxiosError<ApiErrorResponse>;
+      if (axiosError.response?.status === 401) {
+        setError('Your session has expired. Please login again.');
+        navigate('/login', { state: { from: `/cars/${car._id}` } });
+      } else {
+        setError(axiosError.response?.data?.message || 'Failed to create booking. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -66,6 +101,12 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
+          {error && (
+            <div className="bg-error/10 border border-error/20 text-error px-4 py-3 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+          
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <Input

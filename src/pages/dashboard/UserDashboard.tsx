@@ -1,90 +1,134 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Calendar, CheckCircle, Clock, XCircle, AlertCircle, Car } from 'lucide-react';
 import Card, { CardContent, CardHeader } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
-import { Booking } from '../../types';
+import { Booking, Car as CarType } from '../../types';
+import axios, { AxiosError } from 'axios';
 
-// Mock bookings data
-const mockBookings: Booking[] = [
-  {
-    id: '1',
-    carId: '1',
-    userId: '1',
-    startDate: '2023-08-10',
-    endDate: '2023-08-15',
-    totalPrice: 445,
-    status: 'confirmed',
-    createdAt: '2023-07-29T15:30:00Z',
-  },
-  {
-    id: '2',
-    carId: '3',
-    userId: '1',
-    startDate: '2023-09-20',
-    endDate: '2023-09-25',
-    totalPrice: 995,
-    status: 'pending',
-    createdAt: '2023-07-30T10:45:00Z',
-  },
-  {
-    id: '3',
-    carId: '2',
-    userId: '1',
-    startDate: '2023-07-05',
-    endDate: '2023-07-10',
-    totalPrice: 550,
-    status: 'completed',
-    createdAt: '2023-06-20T08:15:00Z',
-  },
-  {
-    id: '4',
-    carId: '4',
-    userId: '1',
-    startDate: '2023-06-10',
-    endDate: '2023-06-15',
-    totalPrice: 325,
-    status: 'cancelled',
-    createdAt: '2023-05-25T14:20:00Z',
-  },
-];
-
-// Mock data for cars to match with booking carIds
-const mockCars = {
-  '1': {
-    make: 'Tesla',
-    model: 'Model 3',
-    image: 'https://images.pexels.com/photos/12861709/pexels-photo-12861709.jpeg',
-  },
-  '2': {
-    make: 'BMW',
-    model: 'X5',
-    image: 'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg',
-  },
-  '3': {
-    make: 'Porsche',
-    model: '911',
-    image: 'https://images.pexels.com/photos/3802510/pexels-photo-3802510.jpeg',
-  },
-  '4': {
-    make: 'Toyota',
-    model: 'RAV4',
-    image: 'https://images.pexels.com/photos/2920064/pexels-photo-2920064.jpeg',
-  },
-};
+interface ApiErrorResponse {
+  message: string;
+}
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'all' | 'upcoming' | 'completed' | 'cancelled'>('all');
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [cars, setCars] = useState<Record<string, CarType>>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredBookings = mockBookings.filter(booking => {
+  useEffect(() => {
+    const fetchBookings = async () => {
+      if (!user?.id) return;
+      
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const config = {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        };
+        
+        // Fetch user's bookings
+        const bookingsRes = await axios.get(
+          `http://localhost:5001/api/bookings?userId=${user.id}`,
+          config
+        );
+        const fetchedBookings = bookingsRes.data;
+        setBookings(fetchedBookings);
+
+        // Get unique car IDs from bookings
+        const carIds = [...new Set(fetchedBookings.map((booking: Booking) => booking.carId))];
+        
+        // Fetch all cars that are in the bookings
+        const carsRes = await axios.get(
+          `http://localhost:5001/api/cars?ids=${carIds.join(',')}`,
+          config
+        );
+        const carsData = carsRes.data;
+        
+        // Convert cars array to a map for easy lookup
+        const carsMap = carsData.reduce((acc: Record<string, CarType>, car: CarType) => {
+          acc[car._id] = car;
+          return acc;
+        }, {});
+        
+        setCars(carsMap);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        const axiosError = err as AxiosError<ApiErrorResponse>;
+        if (axiosError.response?.status === 401) {
+          setError('Your session has expired. Please login again.');
+          navigate('/login');
+        } else {
+          setError('Failed to load your bookings. Please try again later.');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, [user?.id, navigate]);
+
+  const filteredBookings = bookings.filter(booking => {
     if (activeTab === 'all') return true;
     if (activeTab === 'upcoming') return booking.status === 'confirmed' || booking.status === 'pending';
     if (activeTab === 'completed') return booking.status === 'completed';
     if (activeTab === 'cancelled') return booking.status === 'cancelled';
     return true;
   });
+
+  const handleCancelBooking = async (bookingId: string) => {
+    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      await axios.patch(
+        `http://localhost:5001/api/bookings/${bookingId}`,
+        { status: 'cancelled' },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      // Update local state
+      setBookings(prev => prev.map(booking => 
+        booking.id === bookingId 
+          ? { ...booking, status: 'cancelled' } 
+          : booking
+      ));
+    } catch (err) {
+      console.error('Error cancelling booking:', err);
+      const axiosError = err as AxiosError<ApiErrorResponse>;
+      if (axiosError.response?.status === 401) {
+        alert('Your session has expired. Please login again.');
+        navigate('/login');
+      } else {
+        alert('Failed to cancel booking. Please try again.');
+      }
+    }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -130,6 +174,29 @@ const UserDashboard: React.FC = () => {
         return 'bg-gray-200 text-gray-800';
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex justify-center items-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-white mb-2">Error Loading Data</h2>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <Button variant="primary" onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background py-12">
@@ -240,61 +307,68 @@ const UserDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredBookings.map((booking) => (
-                      <tr key={booking.id} className="border-b border-gray-700 hover:bg-background-light/30">
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="h-10 w-10 flex-shrink-0">
-                              <img
-                                className="h-10 w-10 rounded-md object-cover"
-                                src={mockCars[booking.carId as keyof typeof mockCars]?.image}
-                                alt="Car"
-                              />
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-white">
-                                {mockCars[booking.carId as keyof typeof mockCars]?.make}{' '}
-                                {mockCars[booking.carId as keyof typeof mockCars]?.model}
+                    {filteredBookings.map((booking) => {
+                      const car = cars[booking.carId];
+                      return (
+                        <tr key={booking.id} className="border-b border-gray-700 hover:bg-background-light/30">
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="h-10 w-10 flex-shrink-0">
+                                <img
+                                  className="h-10 w-10 rounded-md object-cover"
+                                  src={car?.images[0] ? `http://localhost:5001${car.images[0]}` : 'https://via.placeholder.com/150'}
+                                  alt="Car"
+                                />
                               </div>
-                              <div className="text-xs text-gray-400">
-                                Booked on {new Date(booking.createdAt).toLocaleDateString()}
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-white">
+                                  {car ? `${car.make} ${car.model}` : 'Unknown Car'}
+                                </div>
+                                <div className="text-xs text-gray-400">
+                                  Booked on {new Date(booking.createdAt).toLocaleDateString()}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <div className="flex items-center text-sm text-gray-300">
-                            <Calendar className="h-4 w-4 text-primary mr-2" />
-                            <span>
-                              {new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-white">${booking.totalPrice}</div>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusClass(booking.status)}`}>
-                            {getStatusIcon(booking.status)}
-                            <span className="ml-1">{getStatusText(booking.status)}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-right text-sm">
-                          <div className="flex justify-end space-x-2">
-                            <Link to={`/cars/${booking.carId}`}>
-                              <Button variant="ghost" size="sm">
-                                View Car
-                              </Button>
-                            </Link>
-                            {(booking.status === 'pending' || booking.status === 'confirmed') && (
-                              <Button variant="outline" size="sm" className="text-error border-error hover:bg-error/10">
-                                Cancel
-                              </Button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className="flex items-center text-sm text-gray-300">
+                              <Calendar className="h-4 w-4 text-primary mr-2" />
+                              <span>
+                                {new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-white">${booking.totalPrice}</div>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusClass(booking.status)}`}>
+                              {getStatusIcon(booking.status)}
+                              <span className="ml-1">{getStatusText(booking.status)}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-right text-sm">
+                            <div className="flex justify-end space-x-2">
+                              <Link to={`/cars/${booking.carId}`}>
+                                <Button variant="ghost" size="sm">
+                                  View Car
+                                </Button>
+                              </Link>
+                              {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="text-error border-error hover:bg-error/10"
+                                  onClick={() => handleCancelBooking(booking.id)}
+                                >
+                                  Cancel
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

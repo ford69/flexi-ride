@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { 
+import {
   Upload, Plus, Minus, MapPin, Car as CarIcon,
   DollarSign, Tag
 } from 'lucide-react';
@@ -9,6 +9,8 @@ import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import Card, { CardContent, CardHeader, CardFooter } from '../../components/ui/Card';
 import { useAuth } from '../../contexts/AuthContext';
+import axios from 'axios';
+
 
 type FormValues = {
   make: string;
@@ -19,6 +21,7 @@ type FormValues = {
   dailyRate: number;
   location: string;
   features: string[];
+  images: File[];
 };
 
 const carTypes = [
@@ -43,19 +46,34 @@ const AddCarPage: React.FC = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const maxImages = 6;
+
     if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files);
+      const selectedFiles = Array.from(e.target.files).filter(file =>
+        file.type.startsWith('image/')
+      );
+
+      const totalImages = images.length + selectedFiles.length;
+      if (totalImages > maxImages) {
+        alert(`You can upload a maximum of ${maxImages} images.`);
+        return;
+      }
+
       setImages(prev => [...prev, ...selectedFiles]);
-      
-      // Create preview URLs
+
+      // Create preview URLs and track them for cleanup
       const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
       setImagePreviews(prev => [...prev, ...newPreviews]);
     }
+
+    // Clear the input to allow re-selection of the same files
+    e.target.value = '';
   };
+
 
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
-    
+
     // Revoke the URL to avoid memory leaks
     URL.revokeObjectURL(imagePreviews[index]);
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
@@ -77,31 +95,49 @@ const AddCarPage: React.FC = () => {
     setFeatures(updatedFeatures);
   };
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    if (!user) return;
     setIsSubmitting(true);
-    
-    // Filter out empty features
+
     const filteredFeatures = features.filter(feature => feature.trim() !== '');
-    
-    // This would be replaced with an actual API call
+    const formData = new FormData();
+
+    formData.append('ownerId', user.id); // ✅ Set from authenticated user
+    formData.append('make', values.make);
+    formData.append('model', values.model);
+    formData.append('year', values.year.toString());
+    formData.append('type', values.type);
+    formData.append('description', values.description);
+    formData.append('dailyRate', values.dailyRate.toString());
+    formData.append('location', values.location);
+
+    filteredFeatures.forEach((feature) => {
+      formData.append('features', feature);
+    });
+
+    images.forEach((imageFile) => {
+      formData.append('images', imageFile);
+    });
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log({
-        ...data,
-        features: filteredFeatures,
-        images,
+      await axios.post('http://localhost:5001/api/cars', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${user.token}`, // ✅ Include token to authenticate
+        },
       });
-      
-      alert('Car added successfully!');
+
+      alert('✅ Car added successfully!');
       navigate('/owner/dashboard');
     } catch (error) {
-      console.error('Error adding car:', error);
-      alert('Failed to add car. Please try again.');
+      console.error('❌ Failed to add car:', error);
+      alert('Error submitting car. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+
 
   return (
     <div className="min-h-screen bg-background py-12">
@@ -127,7 +163,7 @@ const AddCarPage: React.FC = () => {
                       placeholder="e.g. Toyota, BMW, Tesla"
                       icon={<CarIcon className="h-5 w-5 text-gray-400" />}
                     />
-                    
+
                     <Input
                       label="Model"
                       error={errors.model?.message}
@@ -136,14 +172,14 @@ const AddCarPage: React.FC = () => {
                       icon={<CarIcon className="h-5 w-5 text-gray-400" />}
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-200 mb-1">Year</label>
                       <Input
                         type="number"
                         error={errors.year?.message}
-                        {...register('year', { 
+                        {...register('year', {
                           required: 'Year is required',
                           min: { value: 1990, message: 'Year must be 1990 or later' },
                           max: { value: new Date().getFullYear() + 1, message: `Year cannot be later than ${new Date().getFullYear() + 1}` }
@@ -151,7 +187,7 @@ const AddCarPage: React.FC = () => {
                         placeholder="e.g. 2022"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-200 mb-1">Type</label>
                       <select
@@ -166,34 +202,34 @@ const AddCarPage: React.FC = () => {
                       {errors.type && <p className="mt-1 text-sm text-error">{errors.type.message}</p>}
                     </div>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-200 mb-1">Description</label>
                     <textarea
                       className="w-full px-4 py-2 bg-background-light text-white border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent border-gray-700"
                       rows={4}
                       placeholder="Describe your car, its condition, special features, etc."
-                      {...register('description', { 
+                      {...register('description', {
                         required: 'Description is required',
                         minLength: { value: 50, message: 'Description should be at least 50 characters' }
                       })}
                     ></textarea>
                     {errors.description && <p className="mt-1 text-sm text-error">{errors.description.message}</p>}
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
                       label="Daily Rate ($)"
                       type="number"
                       error={errors.dailyRate?.message}
-                      {...register('dailyRate', { 
+                      {...register('dailyRate', {
                         required: 'Daily rate is required',
                         min: { value: 10, message: 'Rate must be at least $10' }
                       })}
                       placeholder="e.g. 85"
                       icon={<DollarSign className="h-5 w-5 text-gray-400" />}
                     />
-                    
+
                     <Input
                       label="Location"
                       error={errors.location?.message}
@@ -228,7 +264,7 @@ const AddCarPage: React.FC = () => {
                         </button>
                       </div>
                     ))}
-                    
+
                     {imagePreviews.length < 6 && (
                       <label className="h-32 border-2 border-dashed border-gray-600 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors">
                         <Upload className="h-8 w-8 text-gray-400 mb-2" />
@@ -243,7 +279,7 @@ const AddCarPage: React.FC = () => {
                       </label>
                     )}
                   </div>
-                  
+
                   {imagePreviews.length === 0 && (
                     <p className="text-sm text-error">Please upload at least one photo of your car</p>
                   )}

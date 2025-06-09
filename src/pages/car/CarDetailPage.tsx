@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { 
-  MapPin, Calendar, DollarSign, Clock, User, Star, ChevronLeft, 
+import {
+  MapPin, Calendar, DollarSign, Clock, User, Star, ChevronLeft,
   ChevronRight, Shield, LifeBuoy, Award, Check
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
@@ -9,47 +9,7 @@ import Card, { CardContent } from '../../components/ui/Card';
 import BookingForm from '../../components/bookings/BookingForm';
 import { Car } from '../../types';
 
-// Placeholder mock data
-const mockCars: Car[] = [
-  {
-    id: '1',
-    ownerId: 'owner1',
-    make: 'Tesla',
-    model: 'Model 3',
-    year: 2023,
-    type: 'Electric',
-    description: 'Premium electric sedan with autopilot features. The Tesla Model 3 is an electric four-door sedan developed by Tesla. The Model 3 Standard Range Plus version delivers an EPA-rated all-electric range of 263 miles (423 km) and the Long Range versions deliver 353 miles (568 km). The Model 3 carries full self-driving hardware, with periodic software updates adding new features.',
-    dailyRate: 89,
-    location: 'New York, NY',
-    images: [
-      'https://images.pexels.com/photos/12861709/pexels-photo-12861709.jpeg',
-      'https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg',
-      'https://images.pexels.com/photos/3422964/pexels-photo-3422964.jpeg'
-    ],
-    features: ['Autopilot', 'Premium Sound', 'Heated Seats', 'Long Range Battery', 'Supercharging', 'All Glass Roof'],
-    availability: true,
-    createdAt: '2023-05-15T10:00:00Z',
-  },
-  {
-    id: '2',
-    ownerId: 'owner2',
-    make: 'BMW',
-    model: 'X5',
-    year: 2022,
-    type: 'SUV',
-    description: 'Luxury SUV with plenty of space and power. The BMW X5 is a mid-size luxury SUV produced by BMW. The X5 made its debut in 1999 as the first SUV ever produced by BMW. It features all-wheel drive and is available with either diesel or petrol engines. Recently, a hybrid-electric version has also been released.',
-    dailyRate: 110,
-    location: 'Los Angeles, CA',
-    images: [
-      'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg',
-      'https://images.pexels.com/photos/241316/pexels-photo-241316.jpeg',
-      'https://images.pexels.com/photos/1149137/pexels-photo-1149137.jpeg'
-    ],
-    features: ['Leather Interior', 'Panoramic Roof', 'Premium Sound', '360 Camera', 'Heated Seats', 'Navigation'],
-    availability: true,
-    createdAt: '2023-06-20T14:30:00Z',
-  },
-];
+
 
 const CarDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -58,23 +18,31 @@ const CarDetailPage: React.FC = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
-    // Simulating API call to fetch car details
-    setIsLoading(true);
-    setTimeout(() => {
-      const foundCar = mockCars.find(car => car.id === id);
-      setCar(foundCar || null);
-      setIsLoading(false);
-    }, 800);
+    const fetchCar = async () => {
+      try {
+        const res = await fetch(`http://localhost:5001/api/cars/${id}`);
+        const data = await res.json();
+        setCar(data);
+      } catch (err) {
+        console.error('Failed to load car:', err);
+        setCar(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCar();
   }, [id]);
 
+
   const handlePrevImage = () => {
-    setActiveImageIndex(prev => 
+    setActiveImageIndex(prev =>
       prev === 0 ? (car?.images.length || 1) - 1 : prev - 1
     );
   };
 
   const handleNextImage = () => {
-    setActiveImageIndex(prev => 
+    setActiveImageIndex(prev =>
       prev === (car?.images.length || 1) - 1 ? 0 : prev + 1
     );
   };
@@ -116,13 +84,20 @@ const CarDetailPage: React.FC = () => {
           <div className="lg:col-span-2">
             {/* Image Gallery */}
             <div className="relative h-64 sm:h-96 rounded-lg overflow-hidden mb-6">
-              <img
-                src={car.images[activeImageIndex]}
-                alt={`${car.make} ${car.model}`}
-                className="w-full h-full object-cover"
-              />
-              
-              {car.images.length > 1 && (
+              {car.images?.length > 0 ? (
+                <img
+                  src={`http://localhost:5001${car.images[activeImageIndex]}`}
+                  alt={`${car.make} ${car.model}`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white">
+                  No image available
+                </div>
+              )}
+
+
+              {car.images?.length > 1 && (
                 <>
                   <button
                     onClick={handlePrevImage}
@@ -136,21 +111,20 @@ const CarDetailPage: React.FC = () => {
                   >
                     <ChevronRight className="h-6 w-6" />
                   </button>
-                  
+
                   <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
                     {car.images.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setActiveImageIndex(index)}
-                        className={`w-2 h-2 rounded-full ${
-                          index === activeImageIndex ? 'bg-primary' : 'bg-white/50'
-                        }`}
+                        className={`w-2 h-2 rounded-full ${index === activeImageIndex ? 'bg-primary' : 'bg-white/50'
+                          }`}
                       />
                     ))}
                   </div>
                 </>
               )}
-              
+
               {!car.availability && (
                 <div className="absolute top-4 right-4 bg-error px-3 py-1 text-sm font-bold rounded-full text-white">
                   Not Available
@@ -163,7 +137,7 @@ const CarDetailPage: React.FC = () => {
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
                 {car.make} {car.model} {car.year}
               </h1>
-              
+
               <div className="flex flex-wrap gap-y-2 mb-4">
                 <div className="flex items-center mr-6 text-gray-300">
                   <MapPin className="h-5 w-5 text-primary mr-2" />
@@ -183,7 +157,7 @@ const CarDetailPage: React.FC = () => {
                   <span>Listed {new Date(car.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
-              
+
               <div className="mt-6">
                 <h2 className="text-xl font-semibold text-white mb-3">Description</h2>
                 <p className="text-gray-300">{car.description}</p>
@@ -194,12 +168,17 @@ const CarDetailPage: React.FC = () => {
             <div className="bg-background-card rounded-lg shadow-md p-6 mb-6">
               <h2 className="text-xl font-semibold text-white mb-4">Features</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {car.features.map((feature, index) => (
-                  <div key={index} className="flex items-center text-gray-300">
-                    <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                    <span>{feature}</span>
-                  </div>
-                ))}
+                {car.features?.length > 0 ? (
+                  car.features.map((feature, index) => (
+                    <div key={index} className="flex items-center text-gray-300">
+                      <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                      <span>{feature}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400">No features listed.</p>
+                )}
+
               </div>
             </div>
 
@@ -236,7 +215,7 @@ const CarDetailPage: React.FC = () => {
           <div className="lg:col-span-1">
             <div className="sticky top-6">
               <BookingForm car={car} />
-              
+
               <Card className="mt-6">
                 <CardContent>
                   <div className="flex items-start mb-4">

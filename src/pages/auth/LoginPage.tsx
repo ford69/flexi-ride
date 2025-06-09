@@ -17,15 +17,26 @@ const LoginPage: React.FC = () => {
   const location = useLocation();
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const from = location.state?.from || '/';
-
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>();
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
       setAuthError(null);
       await login(data.email, data.password);
-      navigate(from, { replace: true });
+
+      // ✅ Role-based redirection
+      const storedUser = localStorage.getItem('user');
+      const user = storedUser ? JSON.parse(storedUser) : null;
+
+      if (user?.role === 'owner') {
+        navigate('/owner/dashboard', { replace: true });
+      } else {
+        navigate('/user/dashboard', { replace: true });
+      }
     } catch (error) {
       setAuthError('Invalid email or password. Please try again.');
     }
