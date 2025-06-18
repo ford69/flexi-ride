@@ -12,6 +12,7 @@ import UserDashboard from './pages/dashboard/UserDashboard';
 import OwnerDashboard from './pages/dashboard/OwnerDashboard';
 import AdminDashboard from './pages/dashboard/AdminDashboard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import TestPayment from './components/TestPayment';
 
 const ProtectedRoute: React.FC<{ 
   children: React.ReactNode; 
@@ -114,6 +115,9 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
+              
+              {/* Test payment */}
+              <Route path="/test-payment" element={<TestPayment />} />
               
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />

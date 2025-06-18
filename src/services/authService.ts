@@ -44,10 +44,21 @@ export class AuthService {
   // Send OTP via email with verification
   private async sendOTPEmail(email: string, otp: string): Promise<boolean> {
     try {
+      // Debug logging
+      console.log('Email Configuration:', {
+        host: 'smtp.sendgrid.net',
+        apiKey: process.env.SENDGRID_API_KEY ? 'Set' : 'Not Set',
+        fromEmail: process.env.SMTP_FROM
+      });
+
       // Verify email service first
       const isEmailServiceWorking = await this.verifyEmailService();
       if (!isEmailServiceWorking) {
         throw new Error('Email service is not configured properly');
+      }
+
+      if (!process.env.SMTP_FROM) {
+        throw new Error('SMTP_FROM email address is not configured');
       }
 
       await transporter.sendMail({
@@ -60,6 +71,7 @@ export class AuthService {
           <p>This code will expire in 5 minutes.</p>
         `,
       });
+      console.log('Verification email sent successfully to:', email);
       return true;
     } catch (error) {
       console.error('Failed to send OTP email:', error);
@@ -115,7 +127,7 @@ export class AuthService {
         throw new Error('Failed to send verification email');
       }
 
-      return { user, otp };
+      return { user: { ...user, role: user.role as UserRole }, otp };
     } catch (error) {
       // Clean up if anything fails
       await prisma.user.delete({ where: { id: user.id } });
@@ -175,6 +187,6 @@ export class AuthService {
       { expiresIn: '24h' }
     );
 
-    return { token, user };
+    return { token, user: { ...user, role: user.role as UserRole } };
   }
 } 

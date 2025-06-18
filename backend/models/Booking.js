@@ -32,6 +32,14 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     enum: ['unpaid', 'paid'],
     default: 'unpaid'
+  },
+  paymentReference: {
+    type: String,
+    default: null
+  },
+  currency: {
+    type: String,
+    default: 'GHS'
   }
 }, { 
   timestamps: true 

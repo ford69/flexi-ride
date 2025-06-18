@@ -102,31 +102,40 @@ router.get('/:id', protect, async (req, res) => {
   }
 });
 
-// Update booking status (confirm/cancel)
+// Update booking status (confirm/cancel/payment)
 router.patch('/:id', protect, async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, paymentStatus, paymentReference } = req.body;
     const booking = await Booking.findById(req.params.id);
 
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    // Get the car to check ownership
-    const car = await Car.findById(booking.carId);
-    
-    // Only allow the car owner or the booking user to update the status
-    if (car.ownerId.toString() !== req.user._id.toString() && 
-        booking.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Not authorized to update this booking' });
+    // If updating payment status
+    if (paymentStatus && paymentReference) {
+      booking.paymentStatus = paymentStatus;
+      booking.paymentReference = paymentReference;
+      // Automatically confirm booking when payment is received
+      booking.status = 'confirmed';
+    } 
+    // If updating booking status
+    else if (status) {
+      // Get the car to check ownership for status updates
+      const car = await Car.findById(booking.carId);
+      
+      // Only allow the car owner or the booking user to update the status
+      if (car.ownerId.toString() !== req.user._id.toString() && 
+          booking.userId.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Not authorized to update this booking' });
+      }
+      booking.status = status;
     }
 
-    // Update the booking
-    booking.status = status;
     await booking.save();
-
     res.json(booking);
   } catch (error) {
+    console.error('Error updating booking:', error);
     res.status(500).json({ message: error.message });
   }
 });

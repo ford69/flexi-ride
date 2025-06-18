@@ -7,22 +7,34 @@ import Card, { CardContent, CardHeader, CardFooter } from '../ui/Card';
 import { Car } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import PaymentButton from '../PaymentButton';
 
-interface BookingFormProps {
-  car: Car;
+interface PaystackResponse {
+  reference: string;
+  status: 'success' | 'failed';
+  trans: string;
+  transaction: string;
+  message: string;
 }
 
 interface ApiErrorResponse {
   message: string;
 }
 
+interface BookingFormProps {
+  car: Car;
+}
+
 const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bookingId, setBookingId] = useState<string | null>(null);
+  const [showPayment, setShowPayment] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const calculateDays = () => {
     if (!startDate || !endDate) return 0;
@@ -40,6 +52,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isSubmitting || hasSubmitted) {
+      return;
+    }
     
     if (!isAuthenticated) {
       navigate('/login', { state: { from: `/cars/${car._id}` } });
@@ -72,13 +88,13 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
         }
       );
 
-      if (response.data) {
-        navigate('/dashboard', { 
-          state: { 
-            bookingSuccess: true,
-            message: 'Booking request sent successfully! The owner will confirm your booking soon.' 
-          }
-        });
+      if (response.data && response.data._id) {
+        console.log('Booking created:', response.data);
+        setBookingId(response.data._id);
+        setShowPayment(true);
+        setHasSubmitted(true);
+      } else {
+        throw new Error('Booking created but no ID returned');
       }
     } catch (err) {
       console.error('Booking error:', err);
@@ -92,6 +108,46 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handlePaymentSuccess = async (response: PaystackResponse) => {
+    if (!bookingId) {
+      console.error('No booking ID found');
+      setError('Payment successful but booking reference not found. Please contact support.');
+      return;
+    }
+
+    try {
+      console.log('Updating booking:', bookingId, 'with payment reference:', response.reference);
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `http://localhost:5001/api/bookings/${bookingId}`,
+        {
+          paymentStatus: 'paid',
+          paymentReference: response.reference
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      navigate('/dashboard', { 
+        state: { 
+          bookingSuccess: true,
+          message: 'Booking confirmed and payment processed successfully!' 
+        }
+      });
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      setError('Payment was successful but failed to update booking. Please save this reference: ' + response.reference);
+    }
+  };
+
+  const handlePaymentClose = () => {
+    setError('Payment was cancelled. Please try again.');
   };
 
   return (
@@ -154,16 +210,29 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
             </div>
           )}
         </CardContent>
-        <CardFooter>
-          <Button
-            type="submit"
-            variant="primary"
-            fullWidth
-            isLoading={isSubmitting}
-            disabled={!car.availability || !startDate || !endDate}
-          >
-            {!car.availability ? 'Not Available' : 'Book Now'}
-          </Button>
+        <CardFooter className="flex flex-col space-y-4">
+          {showPayment && user ? (
+            <PaymentButton
+              amount={calculateTotalPrice()}
+              email={user.email}
+              currency="GHS"
+              onSuccess={handlePaymentSuccess}
+              onClose={handlePaymentClose}
+              className="w-full"
+            >
+              Pay GH₵{calculateTotalPrice()} Now
+            </PaymentButton>
+          ) : (
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
+              isLoading={isSubmitting}
+              disabled={!car.availability || !startDate || !endDate || isSubmitting || hasSubmitted}
+            >
+              {!car.availability ? 'Not Available' : isSubmitting ? 'Processing...' : 'Proceed to Payment'}
+            </Button>
+          )}
         </CardFooter>
       </form>
     </Card>
