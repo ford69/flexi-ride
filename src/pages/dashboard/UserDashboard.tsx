@@ -249,7 +249,7 @@ const UserDashboard: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">
-                  ${filteredBookings.reduce((total, booking) => total + booking.totalPrice, 0)}
+                  ¢{filteredBookings.reduce((total, booking) => total + booking.totalPrice, 0)}
                 </h3>
                 <p className="text-gray-400">Total Spent</p>
               </div>
@@ -339,7 +339,7 @@ const UserDashboard: React.FC = () => {
                             </div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-white">${booking.totalPrice}</div>
+                            <div className="text-sm font-medium text-white">¢{booking.totalPrice}</div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusClass(booking.status)}`}>

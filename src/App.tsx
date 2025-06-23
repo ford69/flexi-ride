@@ -11,8 +11,11 @@ import RegisterPage from './pages/auth/RegisterPage';
 import UserDashboard from './pages/dashboard/UserDashboard';
 import OwnerDashboard from './pages/dashboard/OwnerDashboard';
 import AdminDashboard from './pages/dashboard/AdminDashboard';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import TestPayment from './components/TestPayment';
+import { HelmetProvider } from 'react-helmet-async';
 
 const ProtectedRoute: React.FC<{ 
   children: React.ReactNode; 
@@ -56,77 +59,81 @@ const DashboardRouter: React.FC = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="flex flex-col min-h-screen bg-background text-white">
-          <Navbar />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/cars" element={<CarListingPage />} />
-              <Route path="/cars/:id" element={<CarDetailPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              
-              {/* Dashboard redirect */}
-              <Route 
-                path="/dashboard-router" 
-                element={
-                  <ProtectedRoute>
-                    <DashboardRouter />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* User dashboard */}
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute allowedRoles={['user']}>
-                    <UserDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Owner routes */}
-              <Route 
-                path="/owner/dashboard" 
-                element={
-                  <ProtectedRoute allowedRoles={['owner']}>
-                    <OwnerDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/owner/add-car" 
-                element={
-                  <ProtectedRoute allowedRoles={['owner']}>
-                    <AddCarPage />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Admin routes */}
-              <Route 
-                path="/admin/dashboard" 
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Test payment */}
-              <Route path="/test-payment" element={<TestPayment />} />
-              
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <Router>
+          <div className="flex flex-col min-h-screen bg-background text-white">
+            <Navbar />
+            <main className="flex-grow">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/cars" element={<CarListingPage />} />
+                <Route path="/cars/:id" element={<CarDetailPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                
+                {/* Dashboard redirect */}
+                <Route 
+                  path="/dashboard-router" 
+                  element={
+                    <ProtectedRoute>
+                      <DashboardRouter />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* User dashboard */}
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute allowedRoles={['user']}>
+                      <UserDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Owner routes */}
+                <Route 
+                  path="/owner/dashboard" 
+                  element={
+                    <ProtectedRoute allowedRoles={['owner']}>
+                      <OwnerDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/owner/add-car" 
+                  element={
+                    <ProtectedRoute allowedRoles={['owner']}>
+                      <AddCarPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Admin routes */}
+                <Route 
+                  path="/admin/dashboard" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Test payment */}
+                <Route path="/test-payment" element={<TestPayment />} />
+                
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </AuthProvider>
+    </HelmetProvider>
   );
 }
 

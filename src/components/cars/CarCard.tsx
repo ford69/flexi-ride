@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Calendar, DollarSign } from 'lucide-react';
+import { MapPin, Calendar, Coins } from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { Car } from '../../types';
@@ -41,8 +41,8 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             <span className="text-sm">{car.type}</span>
           </div>
           <div className="flex items-center text-gray-300">
-            <DollarSign className="h-4 w-4 text-primary mr-2" />
-            <span className="font-semibold text-white">${car.dailyRate}</span>
+            <Coins className="h-4 w-4 text-primary mr-2" />
+            <span className="font-semibold text-white">¢{car.dailyRate}</span>
             <span className="text-sm ml-1">per day</span>
           </div>
         </div>

@@ -10,8 +10,10 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center">
-              <Car className="h-8 w-8 text-primary" />
+            <Link to="/" className="flex items-center">
+              <img src="/images/flexiride.png" alt="FlexiRide Logo" className="h-10 w-10" />
               <span className="ml-2 text-xl font-bold text-white">FlexiRide</span>
+            </Link>
             </div>
             <p className="text-sm">
               Premium car rental service that provides exceptional vehicles for your journey.

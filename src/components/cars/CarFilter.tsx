@@ -85,7 +85,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ onFilterChange }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-200 mb-1">Min Price ($ per day)</label>
+              <label className="block text-sm font-medium text-gray-200 mb-1">Min Price (¢500 per day)</label>
               <Input
                 type="number"
                 name="minPrice"
@@ -97,7 +97,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ onFilterChange }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-200 mb-1">Max Price ($ per day)</label>
+              <label className="block text-sm font-medium text-gray-200 mb-1">Max Price (¢1000 per day)</label>
               <Input
                 type="number"
                 name="maxPrice"

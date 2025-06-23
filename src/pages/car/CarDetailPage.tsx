@@ -149,7 +149,7 @@ const CarDetailPage: React.FC = () => {
                 </div>
                 <div className="flex items-center mr-6 text-gray-300">
                   <DollarSign className="h-5 w-5 text-primary mr-2" />
-                  <span className="font-semibold text-white">${car.dailyRate}</span>
+                  <span className="font-semibold text-white">¢{car.dailyRate}</span>
                   <span className="text-sm ml-1">per day</span>
                 </div>
                 <div className="flex items-center text-gray-300">

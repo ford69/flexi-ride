@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, DollarSign } from 'lucide-react';
+import { Calendar, Coins } from 'lucide-react';
 import axios, { AxiosError } from 'axios';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -196,14 +196,14 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
               </div>
               <div className="flex justify-between mb-2">
                 <span className="text-gray-300">Daily Rate:</span>
-                <span className="font-semibold text-white">${car.dailyRate}/day</span>
+                <span className="font-semibold text-white">¢{car.dailyRate}/day</span>
               </div>
               <div className="border-t border-gray-700 my-2 pt-2">
                 <div className="flex justify-between">
                   <span className="text-gray-300">Total Price:</span>
                   <div className="flex items-center text-white">
-                    <DollarSign className="h-4 w-4 text-primary mr-1" />
-                    <span className="font-bold text-lg">${calculateTotalPrice()}</span>
+                    <Coins className="h-4 w-4 text-primary mr-1" />
+                    <span className="font-bold text-lg">¢{calculateTotalPrice()}</span>
                   </div>
                 </div>
               </div>

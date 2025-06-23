@@ -237,7 +237,7 @@ const AdminDashboard: React.FC = () => {
                 <DollarSign className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">${stats.totalEarnings}</h3>
+                <h3 className="text-lg font-semibold text-white">¢{stats.totalEarnings}</h3>
                 <p className="text-gray-400">Total Revenue</p>
               </div>
             </CardContent>
@@ -442,7 +442,7 @@ const AdminDashboard: React.FC = () => {
                             </span>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-white">
-                            ${car.dailyRate}
+                            ¢{car.dailyRate}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-right">
                             <div className="flex justify-end space-x-2">
@@ -529,7 +529,7 @@ const AdminDashboard: React.FC = () => {
                             </div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-white">
-                            ${booking.totalPrice}
+                            ¢{booking.totalPrice}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${

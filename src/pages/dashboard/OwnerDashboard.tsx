@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios, { AxiosError } from 'axios';
 import {
-  Car as CarIcon, DollarSign, Users, PlusCircle, Calendar, Clock,
+  Car as CarIcon, Coins, Users, PlusCircle, Calendar, Clock,
   Edit, Trash2, Eye, CheckCircle, XCircle, AlertCircle
 } from 'lucide-react';
 import Card, { CardContent, CardHeader } from '../../components/ui/Card';
@@ -247,10 +247,10 @@ const OwnerDashboard: React.FC = () => {
           <Card className="bg-background-card">
             <CardContent className="flex items-center p-6">
               <div className="p-3 bg-primary/20 rounded-full mr-4">
-                <DollarSign className="h-8 w-8 text-primary" />
+                <Coins className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">${totalEarnings}</h3>
+                <h3 className="text-lg font-semibold text-white">¢{totalEarnings}</h3>
                 <p className="text-gray-400">Total Earnings</p>
               </div>
             </CardContent>
@@ -339,7 +339,7 @@ const OwnerDashboard: React.FC = () => {
                               {car.availability ? 'Available' : 'Unavailable'}
                             </span>
                           </td>
-                          <td className="px-4 py-4 text-white">${car.dailyRate}</td>
+                          <td className="px-4 py-4 text-white">¢{car.dailyRate}</td>
                           <td className="px-4 py-4 text-gray-300">{car.location}</td>
                           <td className="px-4 py-4 text-right">
                             <div className="flex justify-end gap-2">
@@ -428,7 +428,7 @@ const OwnerDashboard: React.FC = () => {
                                 </span>
                               </div>
                             </td>
-                            <td className="px-4 py-4 text-white">${booking.totalPrice}</td>
+                            <td className="px-4 py-4 text-white">¢{booking.totalPrice}</td>
                             <td className="px-4 py-4">
                               <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(booking.status)}`}>
                                 {getStatusIcon(booking.status)}

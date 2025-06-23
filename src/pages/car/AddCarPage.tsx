@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import {
   Upload, Plus, Minus, MapPin, Car as CarIcon,
-  DollarSign, Tag
+  Coins, Tag
 } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -219,22 +219,22 @@ const AddCarPage: React.FC = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
-                      label="Daily Rate ($)"
+                      label="Daily Rate (¢)"
                       type="number"
                       error={errors.dailyRate?.message}
                       {...register('dailyRate', {
                         required: 'Daily rate is required',
-                        min: { value: 10, message: 'Rate must be at least $10' }
+                        min: { value: 500, message: 'Rate must be at least ¢500' }
                       })}
                       placeholder="e.g. 85"
-                      icon={<DollarSign className="h-5 w-5 text-gray-400" />}
+                      icon={<Coins className="h-5 w-5 text-gray-400" />}
                     />
 
                     <Input
                       label="Location"
                       error={errors.location?.message}
                       {...register('location', { required: 'Location is required' })}
-                      placeholder="e.g. New York, NY"
+                      placeholder="e.g. Cantoments, Osu"
                       icon={<MapPin className="h-5 w-5 text-gray-400" />}
                     />
                   </div>
