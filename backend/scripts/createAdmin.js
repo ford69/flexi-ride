@@ -21,7 +21,7 @@ const createAdmin = async () => {
     // Create admin user
     const admin = await User.create({
       name: 'Admin',
-      email: 'admin@flexiride.com',
+      email: 'tech@flexiride.co',
       password: 'password123',
       role: 'admin',
       status: 'active'

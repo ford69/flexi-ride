@@ -19,6 +19,7 @@ interface BookingWithUser extends Booking {
     id: string;
     name: string;
     email: string;
+    avatar?: string;
   };
 }
 
@@ -403,9 +404,22 @@ const OwnerDashboard: React.FC = () => {
                         return (
                           <tr key={booking.id} className="border-b border-gray-700 hover:bg-background-light/30">
                             <td className="px-4 py-4">
-                              <div>
-                                <div className="text-white">{userName}</div>
-                                <div className="text-xs text-gray-400">{userEmail}</div>
+                              <div className="flex items-center">
+                                {booking.user?.avatar ? (
+                                  <img
+                                    src={`http://localhost:5001${booking.user.avatar}`}
+                                    alt={userName}
+                                    className="h-8 w-8 rounded-full object-cover mr-3"
+                                  />
+                                ) : (
+                                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-medium mr-3">
+                                    {userName.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2)}
+                                  </div>
+                                )}
+                                <div>
+                                  <div className="text-white">{userName}</div>
+                                  <div className="text-xs text-gray-400">{userEmail}</div>
+                                </div>
                               </div>
                             </td>
                             <td className="px-4 py-4">

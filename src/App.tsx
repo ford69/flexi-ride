@@ -16,6 +16,10 @@ import ContactPage from './pages/ContactPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import TestPayment from './components/TestPayment';
 import { HelmetProvider } from 'react-helmet-async';
+import VerifyEmailPage from './pages/auth/VerifyEmailPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
+import ProfilePage from './pages/auth/ProfilePage';
 
 const ProtectedRoute: React.FC<{ 
   children: React.ReactNode; 
@@ -124,6 +128,18 @@ function App() {
                 
                 {/* Test payment */}
                 <Route path="/test-payment" element={<TestPayment />} />
+                
+                {/* Verify email */}
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
+                
+                {/* Forgot password */}
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                
+                {/* Reset password */}
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                
+                {/* Profile */}
+                <Route path="/profile" element={<ProfilePage />} />
                 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />

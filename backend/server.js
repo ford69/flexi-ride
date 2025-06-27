@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const winston = require('winston');
+const DailyRotateFile = require('winston-daily-rotate-file');
 
 require('dotenv').config();
 
@@ -31,28 +33,66 @@ app.use('/api/cars', carRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Winston logger configuration
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(({ timestamp, level, message, ...meta }) => {
+      return `${timestamp} [${level.toUpperCase()}]: ${message} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
+    })
+  ),
+  transports: [
+    new DailyRotateFile({
+      filename: 'combined-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      dirname: 'logs',
+      zippedArchive: true,
+      maxSize: '20m',
+      maxFiles: '14d',
+      level: 'info',
+    }),
+    new DailyRotateFile({
+      filename: 'error-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      dirname: 'logs',
+      zippedArchive: true,
+      maxSize: '20m',
+      maxFiles: '30d',
+      level: 'error',
+    }),
+    new winston.transports.Console(),
+  ],
+});
+
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Database connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('✅ Connected to MongoDB'))
-.catch((err) => console.error('❌ MongoDB connection error:', err));
+.then(() => logger.info('✅ Connected to MongoDB'))
+.catch((err) => logger.error('❌ MongoDB connection error:', err));
 
 // Start server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  logger.info(`🚀 Server running on http://localhost:${PORT}`);
 });
 
 // Error handlers - moved to end
 // Handle 404 errors
 app.use((req, res) => {
+  logger.warn(`404 Not Found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ message: 'Not Found' });
 });
 
 // Handle other errors
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  logger.error(err.stack || err.message, { url: req.originalUrl, method: req.method });
   res.status(500).json({ message: 'Internal Server Error' });
 });

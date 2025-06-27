@@ -2,9 +2,11 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  avatar?: string;
   role: "user" | "owner" | "admin";
   createdAt: string;
   token: string; // ✅ Add this line
+  isVerified: boolean;
 }
 
 export interface Car {

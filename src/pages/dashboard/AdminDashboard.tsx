@@ -3,11 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios, { AxiosError } from 'axios';
 import { 
   Users, CarFront, Calendar, DollarSign, BarChart3, 
-  CheckCircle, User, Clock, AlertCircle
+  CheckCircle, Clock, AlertCircle
 } from 'lucide-react';
 import Card, { CardContent, CardHeader } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { useAuth } from '../../contexts/AuthContext';
 import { Car, User as UserType, Booking } from '../../types';
 
 interface ApiErrorResponse {
@@ -23,6 +22,7 @@ interface DashboardStats {
 
 interface ExtendedUser extends UserType {
   status: 'active' | 'suspended';
+  avatar?: string;
 }
 
 interface ExtendedCar extends Car {
@@ -30,7 +30,6 @@ interface ExtendedCar extends Car {
 }
 
 const AdminDashboard: React.FC = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'cars' | 'bookings'>('overview');
   const [users, setUsers] = useState<ExtendedUser[]>([]);
@@ -325,10 +324,18 @@ const AdminDashboard: React.FC = () => {
                       <tr key={user.id} className="border-b border-gray-700 hover:bg-background-light/30">
                         <td className="px-4 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="h-10 w-10 flex-shrink-0 bg-background-light rounded-full flex items-center justify-center">
-                              <User className="h-6 w-6 text-gray-400" />
-                            </div>
-                            <div className="ml-4">
+                            {user.avatar ? (
+                              <img
+                                src={`http://localhost:5001${user.avatar}`}
+                                alt={user.name}
+                                className="h-10 w-10 rounded-full object-cover mr-4"
+                              />
+                            ) : (
+                              <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium mr-4">
+                                {user.name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2)}
+                              </div>
+                            )}
+                            <div>
                               <div className="text-sm font-medium text-white">{user.name}</div>
                               <div className="text-xs text-gray-400">{user.email}</div>
                             </div>
@@ -429,8 +436,23 @@ const AdminDashboard: React.FC = () => {
                             </div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="text-sm text-white">{owner?.name || 'Unknown'}</div>
-                            <div className="text-xs text-gray-400">{owner?.email || 'No email'}</div>
+                            <div className="flex items-center">
+                              {owner?.avatar ? (
+                                <img
+                                  src={`http://localhost:5001${owner.avatar}`}
+                                  alt={owner.name}
+                                  className="h-8 w-8 rounded-full object-cover mr-3"
+                                />
+                              ) : (
+                                <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-medium mr-3">
+                                  {owner?.name ? owner.name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2) : 'U'}
+                                </div>
+                              )}
+                              <div>
+                                <div className="text-sm text-white">{owner?.name || 'Unknown'}</div>
+                                <div className="text-xs text-gray-400">{owner?.email || 'No email'}</div>
+                              </div>
+                            </div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 inline-flex text-xs rounded-full ${
@@ -517,8 +539,23 @@ const AdminDashboard: React.FC = () => {
                             </div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="text-sm text-white">{customer?.name || 'Unknown'}</div>
-                            <div className="text-xs text-gray-400">{customer?.email || 'No email'}</div>
+                            <div className="flex items-center">
+                              {customer?.avatar ? (
+                                <img
+                                  src={`http://localhost:5001${customer.avatar}`}
+                                  alt={customer.name}
+                                  className="h-8 w-8 rounded-full object-cover mr-3"
+                                />
+                              ) : (
+                                <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-medium mr-3">
+                                  {customer?.name ? customer.name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2) : 'U'}
+                                </div>
+                              )}
+                              <div>
+                                <div className="text-sm text-white">{customer?.name || 'Unknown'}</div>
+                                <div className="text-xs text-gray-400">{customer?.email || 'No email'}</div>
+                              </div>
+                            </div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-gray-300">
                             <div className="flex items-center">

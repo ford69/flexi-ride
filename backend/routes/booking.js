@@ -8,6 +8,12 @@ const { protect } = require('../middleware/authmiddleware'); // your auth middle
 // Create a booking
 router.post('/', protect, async (req, res) => {
   try {
+    // Check if user is verified
+    const user = await User.findById(req.user._id);
+    if (!user.isVerified) {
+      return res.status(403).json({ message: 'Please verify your email before booking a ride.' });
+    }
+
     const { carId, startDate, endDate, totalPrice } = req.body;
 
     const car = await Car.findById(carId);

@@ -155,6 +155,11 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
       <CardHeader>
         <h3 className="text-lg font-semibold text-white">Book this car</h3>
       </CardHeader>
+      {!user?.isVerified && isAuthenticated && (
+        <div className="bg-yellow-900/80 border border-yellow-700 text-yellow-300 px-4 py-3 rounded-md text-sm m-4">
+          Please verify your email to book a ride. Check your inbox for a verification link.
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           {error && (
@@ -227,10 +232,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
               type="submit"
               variant="primary"
               fullWidth
+              disabled={!user?.isVerified || isSubmitting || hasSubmitted}
               isLoading={isSubmitting}
-              disabled={!car.availability || !startDate || !endDate || isSubmitting || hasSubmitted}
             >
-              {!car.availability ? 'Not Available' : isSubmitting ? 'Processing...' : 'Proceed to Payment'}
+              Book Now
             </Button>
           )}
         </CardFooter>
