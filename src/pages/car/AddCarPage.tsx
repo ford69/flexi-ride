@@ -10,6 +10,7 @@ import Button from '../../components/ui/Button';
 import Card, { CardContent, CardHeader, CardFooter } from '../../components/ui/Card';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
+import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
 
 
 type FormValues = {
@@ -120,7 +121,7 @@ const AddCarPage: React.FC = () => {
     });
 
     try {
-      await axios.post('http://localhost:5001/api/cars', formData, {
+      await axios.post(buildApiUrl(API_ENDPOINTS.CARS.CREATE), formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${user.token}`, // ✅ Include token to authenticate

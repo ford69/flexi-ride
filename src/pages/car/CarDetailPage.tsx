@@ -8,6 +8,7 @@ import Button from '../../components/ui/Button';
 import Card, { CardContent } from '../../components/ui/Card';
 import BookingForm from '../../components/bookings/BookingForm';
 import { Car } from '../../types';
+import { buildApiUrl, API_ENDPOINTS, API_BASE_URL } from '../../config/api';
 
 
 
@@ -20,7 +21,7 @@ const CarDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchCar = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/cars/${id}`);
+        const res = await fetch(buildApiUrl(API_ENDPOINTS.CARS.DETAIL(id!)));
         const data = await res.json();
         setCar(data);
       } catch (err) {
@@ -86,9 +87,9 @@ const CarDetailPage: React.FC = () => {
             <div className="relative h-64 sm:h-96 rounded-lg overflow-hidden mb-6">
               {car.images?.length > 0 ? (
                 <img
-                  src={`http://localhost:5001${car.images[activeImageIndex]}`}
+                  src={`${API_BASE_URL}${car.images[activeImageIndex]}`}
                   alt={`${car.make} ${car.model}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-96 object-cover rounded-lg"
                 />
               ) : (
                 <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white">

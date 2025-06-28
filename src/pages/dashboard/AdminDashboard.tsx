@@ -8,6 +8,7 @@ import {
 import Card, { CardContent, CardHeader } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { Car, User as UserType, Booking } from '../../types';
+import { buildApiUrl, API_ENDPOINTS, API_BASE_URL } from '../../config/api';
 
 interface ApiErrorResponse {
   message: string;
@@ -65,9 +66,9 @@ const AdminDashboard: React.FC = () => {
 
         // Fetch all data in parallel
         const [usersRes, carsRes, bookingsRes] = await Promise.all([
-          axios.get('http://localhost:5001/api/admin/users', config),
-          axios.get('http://localhost:5001/api/cars', config),
-          axios.get('http://localhost:5001/api/bookings', config)
+          axios.get(buildApiUrl(API_ENDPOINTS.ADMIN.USERS), config),
+          axios.get(buildApiUrl(API_ENDPOINTS.CARS.LIST), config),
+          axios.get(buildApiUrl(API_ENDPOINTS.BOOKINGS.LIST), config)
         ]);
 
         setUsers(usersRes.data);
@@ -109,7 +110,7 @@ const AdminDashboard: React.FC = () => {
       }
 
       await axios.patch(
-        `http://localhost:5001/api/admin/users/${userId}/status`,
+        buildApiUrl(`/api/admin/users/${userId}/status`),
         { status: newStatus },
         {
           headers: {
@@ -140,7 +141,7 @@ const AdminDashboard: React.FC = () => {
       }
 
       await axios.patch(
-        `http://localhost:5001/api/cars/${carId}/approval`,
+        buildApiUrl(`/api/cars/${carId}/approval`),
         { approved },
         {
           headers: {
@@ -425,7 +426,7 @@ const AdminDashboard: React.FC = () => {
                           <td className="px-4 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <img
-                                src={car.images[0] ? `http://localhost:5001${car.images[0]}` : 'https://via.placeholder.com/150'}
+                                src={car.images[0] ? `${API_BASE_URL}${car.images[0]}` : 'https://via.placeholder.com/150'}
                                 alt=""
                                 className="h-10 w-10 rounded-md object-cover mr-3"
                               />
@@ -439,7 +440,7 @@ const AdminDashboard: React.FC = () => {
                             <div className="flex items-center">
                               {owner?.avatar ? (
                                 <img
-                                  src={`http://localhost:5001${owner.avatar}`}
+                                  src={`${API_BASE_URL}${owner.avatar}`}
                                   alt={owner.name}
                                   className="h-8 w-8 rounded-full object-cover mr-3"
                                 />
@@ -529,7 +530,7 @@ const AdminDashboard: React.FC = () => {
                           <td className="px-4 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <img
-                                src={car?.images[0] ? `http://localhost:5001${car.images[0]}` : 'https://via.placeholder.com/150'}
+                                src={car?.images[0] ? `${API_BASE_URL}${car.images[0]}` : 'https://via.placeholder.com/150'}
                                 alt=""
                                 className="h-8 w-8 rounded-md object-cover mr-2"
                               />

@@ -7,6 +7,7 @@ import React, {
   useMemo,
 } from 'react';
 import { User } from '../types';
+import { buildApiUrl, API_ENDPOINTS } from '../config/api';
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -39,9 +40,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch('http://localhost:5001/api/auth/login', {
+      const res = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.LOGIN), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email, password }),
       });
 
@@ -64,9 +67,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch('http://localhost:5001/api/auth/register', {
+      const res = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.REGISTER), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ name, email, password, role }),
       });
 

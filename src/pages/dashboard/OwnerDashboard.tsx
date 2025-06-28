@@ -9,6 +9,7 @@ import Card, { CardContent, CardHeader } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
 import { Car, Booking } from '../../types';
+import { buildApiUrl, API_ENDPOINTS, API_BASE_URL } from '../../config/api';
 
 interface ApiErrorResponse {
   message: string;
@@ -60,7 +61,7 @@ const OwnerDashboard: React.FC = () => {
 
         // Fetch owner's cars
         const carsRes = await axios.get(
-          `http://localhost:5001/api/cars?ownerId=${user.id}`,
+          buildApiUrl(`${API_ENDPOINTS.CARS.LIST}?ownerId=${user.id}`),
           config
         );
         setCars(carsRes.data);
@@ -74,7 +75,7 @@ const OwnerDashboard: React.FC = () => {
         }
 
         const bookingsRes = await axios.get(
-          `http://localhost:5001/api/bookings?carIds=${carIds.join(',')}&includeUser=true`,
+          buildApiUrl(`${API_ENDPOINTS.BOOKINGS.LIST}?carIds=${carIds.join(',')}&includeUser=true`),
           config
         );
         
@@ -108,7 +109,7 @@ const OwnerDashboard: React.FC = () => {
       }
 
       await axios.delete(
-        `http://localhost:5001/api/cars/${id}`,
+        buildApiUrl(API_ENDPOINTS.CARS.DELETE(id)),
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -325,7 +326,7 @@ const OwnerDashboard: React.FC = () => {
                           <td className="px-4 py-4">
                             <div className="flex items-center">
                               <img 
-                                src={car.images[0] ? `http://localhost:5001${car.images[0]}` : 'https://via.placeholder.com/150'} 
+                                src={car.images[0] ? `${API_BASE_URL}${car.images[0]}` : 'https://via.placeholder.com/150'} 
                                 alt="" 
                                 className="h-10 w-10 rounded-md object-cover mr-3" 
                               />
@@ -425,7 +426,7 @@ const OwnerDashboard: React.FC = () => {
                             <td className="px-4 py-4">
                               <div className="flex items-center">
                                 <img 
-                                  src={car?.images[0] ? `http://localhost:5001${car.images[0]}` : 'https://via.placeholder.com/150'} 
+                                  src={car?.images[0] ? `${API_BASE_URL}${car.images[0]}` : 'https://via.placeholder.com/150'} 
                                   alt="" 
                                   className="h-8 w-8 rounded-md object-cover mr-2" 
                                 />

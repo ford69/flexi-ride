@@ -4,6 +4,7 @@ import { MapPin, Calendar, Coins } from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { Car } from '../../types';
+import { API_BASE_URL } from '../../config/api';
 
 interface CarCardProps {
   car: Car;
@@ -14,7 +15,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     <Card className="h-full flex flex-col transition-transform duration-300 hover:scale-[1.02]">
       <div className="relative">
         <img
-          src={car.images[0] ? `http://localhost:5001${car.images[0]}` : 'https://images.pexels.com/photos/6894427/pexels-photo-6894427.jpeg'}
+          src={car.images[0] ? `${API_BASE_URL}${car.images[0]}` : 'https://images.pexels.com/photos/6894427/pexels-photo-6894427.jpeg'}
           alt={`${car.make} ${car.model}`}
           className="h-48 w-full object-cover"
         />

@@ -6,6 +6,7 @@ import Button from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
 import { Booking, Car as CarType } from '../../types';
 import axios, { AxiosError } from 'axios';
+import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
 
 interface ApiErrorResponse {
   message: string;
@@ -43,7 +44,7 @@ const UserDashboard: React.FC = () => {
         
         // Fetch user's bookings
         const bookingsRes = await axios.get(
-          `http://localhost:5001/api/bookings?userId=${user.id}`,
+          buildApiUrl(`${API_ENDPOINTS.BOOKINGS.LIST}?userId=${user.id}`),
           config
         );
         const fetchedBookings = bookingsRes.data;
@@ -54,7 +55,7 @@ const UserDashboard: React.FC = () => {
         
         // Fetch all cars that are in the bookings
         const carsRes = await axios.get(
-          `http://localhost:5001/api/cars?ids=${carIds.join(',')}`,
+          buildApiUrl(`${API_ENDPOINTS.CARS.LIST}?ids=${carIds.join(',')}`),
           config
         );
         const carsData = carsRes.data;

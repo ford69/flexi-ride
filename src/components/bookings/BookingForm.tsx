@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Calendar, Coins } from 'lucide-react';
-import axios, { AxiosError } from 'axios';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Card, { CardContent, CardHeader, CardFooter } from '../ui/Card';
@@ -8,16 +7,11 @@ import { Car } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import PaymentButton from '../PaymentButton';
+import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
 
 interface PaystackResponse {
   reference: string;
-  status: 'success' | 'failed';
-  trans: string;
-  transaction: string;
-  message: string;
-}
-
-interface ApiErrorResponse {
+  status: string;
   message: string;
 }
 
@@ -71,40 +65,33 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        'http://localhost:5001/api/bookings',
-        {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.BOOKINGS.CREATE), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
           carId: car._id,
           startDate,
           endDate,
           totalPrice: calculateTotalPrice(),
           status: 'pending'
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+        }),
+      });
 
-      if (response.data && response.data._id) {
-        console.log('Booking created:', response.data);
-        setBookingId(response.data._id);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Booking created:', data);
+        setBookingId(data._id);
         setShowPayment(true);
         setHasSubmitted(true);
       } else {
         throw new Error('Booking created but no ID returned');
       }
-    } catch (err) {
-      console.error('Booking error:', err);
-      const axiosError = err as AxiosError<ApiErrorResponse>;
-      if (axiosError.response?.status === 401) {
-        setError('Your session has expired. Please login again.');
-        navigate('/login', { state: { from: `/cars/${car._id}` } });
-      } else {
-        setError(axiosError.response?.data?.message || 'Failed to create booking. Please try again.');
-      }
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      alert('Failed to create booking. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -120,29 +107,32 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
     try {
       console.log('Updating booking:', bookingId, 'with payment reference:', response.reference);
       const token = localStorage.getItem('token');
-      await axios.patch(
-        `http://localhost:5001/api/bookings/${bookingId}`,
-        {
-          paymentStatus: 'paid',
-          paymentReference: response.reference
+      const bookingData = {
+        paymentStatus: 'paid',
+        paymentReference: response.reference
+      };
+      const updateResponse = await fetch(buildApiUrl(API_ENDPOINTS.BOOKINGS.UPDATE(bookingId)), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      navigate('/dashboard', { 
-        state: { 
-          bookingSuccess: true,
-          message: 'Booking confirmed and payment processed successfully!' 
-        }
+        body: JSON.stringify(bookingData),
       });
+
+      if (updateResponse.ok) {
+        navigate('/dashboard', { 
+          state: { 
+            bookingSuccess: true,
+            message: 'Booking confirmed and payment processed successfully!' 
+          }
+        });
+      } else {
+        throw new Error('Failed to update booking');
+      }
     } catch (error) {
       console.error('Error updating payment status:', error);
-      setError('Payment was successful but failed to update booking. Please save this reference: ' + response.reference);
+      alert('Payment successful but failed to update booking status. Please contact support.');
     }
   };
 

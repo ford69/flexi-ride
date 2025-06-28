@@ -3,6 +3,7 @@ import { Car, CarFilter as FilterType } from '../../types';
 import CarFilter from '../../components/cars/CarFilter';
 import CarCard from '../../components/cars/CarCard';
 import { Car as CarIcon } from 'lucide-react';
+import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
 
 const CarListingPage: React.FC = () => {
   const [cars, setCars] = useState<Car[]>([]);
@@ -41,7 +42,7 @@ const CarListingPage: React.FC = () => {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const res = await fetch('http://localhost:5001/api/cars');
+        const res = await fetch(buildApiUrl(API_ENDPOINTS.CARS.LIST));
         const data = await res.json();
         setCars(data);
         setFilteredCars(data);
