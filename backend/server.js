@@ -21,37 +21,6 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
-// CORS configuration
-const corsOptions = {
-  origin: [
-    'http://localhost:3000', // Development frontend
-    'http://localhost:5173', // Vite dev server
-    'https://www.flexiride.co', // Production frontend
-    'https://flexiride.co', // Production frontend (without www)
-  ],
-  credentials: true, // Allow cookies and authentication headers
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-};
-
-app.use(cors(corsOptions));
-app.use(express.json());
-
-// CORS logging middleware for debugging
-app.use((req, res, next) => {
-  logger.info(`CORS Request: ${req.method} ${req.originalUrl} from ${req.headers.origin}`);
-  next();
-});
-
-// Static files
-app.use('/uploads', express.static('uploads'));
-
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/cars', carRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/admin', adminRoutes);
-
 // Winston logger configuration
 const logger = winston.createLogger({
   level: 'info',
@@ -83,6 +52,39 @@ const logger = winston.createLogger({
     new winston.transports.Console(),
   ],
 });
+
+// CORS configuration
+const corsOptions = {
+  origin: [
+    'http://localhost:3000', // Development frontend
+    'http://localhost:5173', // Vite dev server
+    'https://www.flexiride.co', // Production frontend
+    'https://flexiride.co', // Production frontend (without www)
+  ],
+  credentials: true, // Allow cookies and authentication headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+
+// CORS logging middleware for debugging
+app.use((req, res, next) => {
+  logger.info(`CORS Request: ${req.method} ${req.originalUrl} from ${req.headers.origin}`);
+  next();
+});
+
+// Static files
+app.use('/uploads', express.static('uploads'));
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/cars', carRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/admin', adminRoutes);
+
+
 
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.originalUrl}`);
