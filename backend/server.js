@@ -113,7 +113,7 @@ mongoose.connect(process.env.MONGO_URI, {
 // Start server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, '0.0.0.0', () => {
-  logger.info(`🚀 Server running on http://localhost:${PORT}`);
+  logger.info(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });
 
 // Error handlers - moved to end
