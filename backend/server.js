@@ -54,13 +54,23 @@ const logger = winston.createLogger({
 });
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://www.flexiride.co',
+  'https://flexiride.co',
+];
+
 const corsOptions = {
-  origin: [
-    'http://localhost:3000', // Development frontend
-    'http://localhost:5173', // Vite dev server
-    'https://www.flexiride.co', // Production frontend
-    'https://flexiride.co', // Production frontend (without www)
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true, // Allow cookies and authentication headers
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
