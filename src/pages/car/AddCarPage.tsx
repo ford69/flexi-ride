@@ -225,7 +225,7 @@ const AddCarPage: React.FC = () => {
                       error={errors.dailyRate?.message}
                       {...register('dailyRate', {
                         required: 'Daily rate is required',
-                        min: { value: 500, message: 'Rate must be at least ¢500' }
+                        min: { value: 1, message: 'Rate must be at least ¢500' }
                       })}
                       placeholder="e.g. 85"
                       icon={<Coins className="h-5 w-5 text-gray-400" />}
