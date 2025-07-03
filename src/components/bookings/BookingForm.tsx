@@ -112,7 +112,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
         paymentReference: response.reference
       };
       const updateResponse = await fetch(buildApiUrl(API_ENDPOINTS.BOOKINGS.UPDATE(bookingId)), {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
