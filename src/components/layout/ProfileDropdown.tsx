@@ -25,6 +25,18 @@ const ProfileDropdown: React.FC = () => {
     navigate('/login');
   };
 
+  const getDashboardLink = () => {
+    if (!user) return '/login';
+    switch (user.role) {
+      case 'admin':
+        return '/admin/dashboard';
+      case 'owner':
+        return '/owner/dashboard';
+      default:
+        return '/dashboard';
+    }
+  };
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -74,7 +86,7 @@ const ProfileDropdown: React.FC = () => {
           </Link>
           
           <Link
-            to="/dashboard"
+            to={getDashboardLink()}
             className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-background-light hover:text-white transition-colors duration-200"
             onClick={() => setIsOpen(false)}
           >

@@ -112,36 +112,48 @@ router.get('/:id', protect, async (req, res) => {
 router.patch('/:id', protect, async (req, res) => {
   try {
     const { status, paymentStatus, paymentReference } = req.body;
+    console.log('PATCH /api/bookings/:id - Request body:', req.body);
+    console.log('PATCH /api/bookings/:id - Booking ID:', req.params.id);
+    
     const booking = await Booking.findById(req.params.id);
 
     if (!booking) {
+      console.log('PATCH /api/bookings/:id - Booking not found');
       return res.status(404).json({ message: 'Booking not found' });
     }
 
+    console.log('PATCH /api/bookings/:id - Found booking:', booking);
+
     // If updating payment status
     if (paymentStatus && paymentReference) {
+      console.log('PATCH /api/bookings/:id - Updating payment status');
       booking.paymentStatus = paymentStatus;
       booking.paymentReference = paymentReference;
       // Automatically confirm booking when payment is received
       booking.status = 'confirmed';
+      console.log('PATCH /api/bookings/:id - Set status to confirmed');
     } 
     // If updating booking status
     else if (status) {
+      console.log('PATCH /api/bookings/:id - Updating booking status to:', status);
       // Get the car to check ownership for status updates
       const car = await Car.findById(booking.carId);
       
       // Only allow the car owner or the booking user to update the status
       if (car.ownerId.toString() !== req.user._id.toString() && 
           booking.userId.toString() !== req.user._id.toString()) {
+        console.log('PATCH /api/bookings/:id - Not authorized to update this booking');
         return res.status(403).json({ message: 'Not authorized to update this booking' });
       }
       booking.status = status;
     }
 
+    console.log('PATCH /api/bookings/:id - Saving booking with status:', booking.status);
     await booking.save();
+    console.log('PATCH /api/bookings/:id - Booking saved successfully');
     res.json(booking);
   } catch (error) {
-    console.error('Error updating booking:', error);
+    console.error('PATCH /api/bookings/:id - Error updating booking:', error);
     res.status(500).json({ message: error.message });
   }
 });
