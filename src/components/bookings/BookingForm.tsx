@@ -5,9 +5,11 @@ import Input from '../ui/Input';
 import Card, { CardContent, CardHeader, CardFooter } from '../ui/Card';
 import { Car } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAlert } from '../../contexts/AlertContext';
 import { useNavigate } from 'react-router-dom';
 import PaymentButton from '../PaymentButton';
 import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
+import { alertMessages } from '../../utils/alerts';
 
 interface PaystackResponse {
   reference: string;
@@ -21,6 +23,7 @@ interface BookingFormProps {
 
 const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
   const { isAuthenticated, user } = useAuth();
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -91,7 +94,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
       }
     } catch (error) {
       console.error('Error creating booking:', error);
-      alert('Failed to create booking. Please try again.');
+      showAlert({
+        type: 'error',
+        ...alertMessages.bookingFailed,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -121,6 +127,11 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
       });
 
       if (updateResponse.ok) {
+        showAlert({
+          type: 'success',
+          ...alertMessages.paymentSuccess,
+          duration: 8000,
+        });
         navigate('/dashboard', { 
           state: { 
             bookingSuccess: true,
@@ -132,7 +143,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ car }) => {
       }
     } catch (error) {
       console.error('Error updating payment status:', error);
-      alert('Payment successful but failed to update booking status. Please contact support.');
+      showAlert({
+        type: 'error',
+        ...alertMessages.paymentPending,
+      });
     }
   };
 

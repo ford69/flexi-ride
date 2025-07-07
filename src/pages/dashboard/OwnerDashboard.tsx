@@ -8,6 +8,7 @@ import {
 import Card, { CardContent, CardHeader } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAlert } from '../../contexts/AlertContext';
 import { Car, Booking } from '../../types';
 import { buildApiUrl, API_ENDPOINTS, API_BASE_URL } from '../../config/api';
 
@@ -26,6 +27,7 @@ interface BookingWithUser extends Booking {
 
 const OwnerDashboard: React.FC = () => {
   const { user } = useAuth();
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
   const [cars, setCars] = useState<Car[]>([]);
   const [bookings, setBookings] = useState<BookingWithUser[]>([]);
@@ -155,14 +157,29 @@ const OwnerDashboard: React.FC = () => {
           ? { ...booking, status: newStatus }
           : booking
       ));
+
+      showAlert({
+        type: 'success',
+        title: 'Status Updated',
+        message: `Booking has been ${newStatus} successfully.`,
+      });
     } catch (err) {
       console.error('Failed to update booking status:', err);
       const axiosError = err as AxiosError<ApiErrorResponse>;
       if (axiosError.response?.status === 401) {
-        alert('Your session has expired. Please login again.');
+        showAlert({
+          type: 'error',
+          title: 'Session Expired',
+          message: 'Your session has expired. Please login again.',
+          persistent: true,
+        });
         navigate('/login');
       } else {
-        alert('Failed to update booking status. Please try again.');
+        showAlert({
+          type: 'error',
+          title: 'Update Failed',
+          message: 'Failed to update booking status. Please try again.',
+        });
       }
     }
   };

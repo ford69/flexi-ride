@@ -4,6 +4,7 @@ import { Calendar, CheckCircle, Clock, XCircle, AlertCircle, Car } from 'lucide-
 import Card, { CardContent, CardHeader } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAlert } from '../../contexts/AlertContext';
 import { Booking, Car as CarType } from '../../types';
 import axios, { AxiosError } from 'axios';
 import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
@@ -14,6 +15,7 @@ interface ApiErrorResponse {
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'all' | 'upcoming' | 'completed' | 'cancelled'>('all');
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -119,14 +121,29 @@ const UserDashboard: React.FC = () => {
           ? { ...booking, status: 'cancelled' } 
           : booking
       ));
+
+      showAlert({
+        type: 'success',
+        title: 'Booking Cancelled',
+        message: 'Your booking has been cancelled successfully.',
+      });
     } catch (err) {
       console.error('Error cancelling booking:', err);
       const axiosError = err as AxiosError<ApiErrorResponse>;
       if (axiosError.response?.status === 401) {
-        alert('Your session has expired. Please login again.');
+        showAlert({
+          type: 'error',
+          title: 'Session Expired',
+          message: 'Your session has expired. Please login again.',
+          persistent: true,
+        });
         navigate('/login');
       } else {
-        alert('Failed to cancel booking. Please try again.');
+        showAlert({
+          type: 'error',
+          title: 'Cancellation Failed',
+          message: 'Failed to cancel booking. Please try again.',
+        });
       }
     }
   };

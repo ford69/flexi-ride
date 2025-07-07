@@ -14,6 +14,8 @@ import AdminDashboard from './pages/dashboard/AdminDashboard';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AlertProvider } from './contexts/AlertContext';
+import { AlertContainer } from './components/ui/AlertContainer';
 import TestPayment from './components/TestPayment';
 import { HelmetProvider } from 'react-helmet-async';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
@@ -64,91 +66,94 @@ const DashboardRouter: React.FC = () => {
 function App() {
   return (
     <HelmetProvider>
-      <AuthProvider>
-        <Router>
-          <div className="flex flex-col min-h-screen bg-background text-white">
-            <Navbar />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/cars" element={<CarListingPage />} />
-                <Route path="/cars/:id" element={<CarDetailPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                
-                {/* Dashboard redirect */}
-                <Route 
-                  path="/dashboard-router" 
-                  element={
-                    <ProtectedRoute>
-                      <DashboardRouter />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* User dashboard */}
-                <Route 
-                  path="/dashboard" 
-                  element={
-                    <ProtectedRoute allowedRoles={['user']}>
-                      <UserDashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* Owner routes */}
-                <Route 
-                  path="/owner/dashboard" 
-                  element={
-                    <ProtectedRoute allowedRoles={['owner']}>
-                      <OwnerDashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/owner/add-car" 
-                  element={
-                    <ProtectedRoute allowedRoles={['owner']}>
-                      <AddCarPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* Admin routes */}
-                <Route 
-                  path="/admin/dashboard" 
-                  element={
-                    <ProtectedRoute allowedRoles={['admin']}>
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* Test payment */}
-                <Route path="/test-payment" element={<TestPayment />} />
-                
-                {/* Verify email */}
-                <Route path="/verify-email" element={<VerifyEmailPage />} />
-                
-                {/* Forgot password */}
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                
-                {/* Reset password */}
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
-                
-                {/* Profile */}
-                <Route path="/profile" element={<ProfilePage />} />
-                
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </Router>
-      </AuthProvider>
+      <AlertProvider>
+        <AuthProvider>
+          <Router>
+            <div className="flex flex-col min-h-screen bg-background text-white">
+              <AlertContainer />
+              <Navbar />
+              <main className="flex-grow">
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/cars" element={<CarListingPage />} />
+                  <Route path="/cars/:id" element={<CarDetailPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  
+                  {/* Dashboard redirect */}
+                  <Route 
+                    path="/dashboard-router" 
+                    element={
+                      <ProtectedRoute>
+                        <DashboardRouter />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  
+                  {/* User dashboard */}
+                  <Route 
+                    path="/dashboard" 
+                    element={
+                      <ProtectedRoute allowedRoles={['user']}>
+                        <UserDashboard />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  
+                  {/* Owner routes */}
+                  <Route 
+                    path="/owner/dashboard" 
+                    element={
+                      <ProtectedRoute allowedRoles={['owner']}>
+                        <OwnerDashboard />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/owner/add-car" 
+                    element={
+                      <ProtectedRoute allowedRoles={['owner']}>
+                        <AddCarPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  
+                  {/* Admin routes */}
+                  <Route 
+                    path="/admin/dashboard" 
+                    element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <AdminDashboard />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  
+                  {/* Test payment */}
+                  <Route path="/test-payment" element={<TestPayment />} />
+                  
+                  {/* Verify email */}
+                  <Route path="/verify-email" element={<VerifyEmailPage />} />
+                  
+                  {/* Forgot password */}
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  
+                  {/* Reset password */}
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  
+                  {/* Profile */}
+                  <Route path="/profile" element={<ProfilePage />} />
+                  
+                  {/* Fallback */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </main>
+              <Footer />
+            </div>
+          </Router>
+        </AuthProvider>
+      </AlertProvider>
     </HelmetProvider>
   );
 }
