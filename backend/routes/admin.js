@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const { protect } = require('../middleware/authmiddleware');
+const Booking = require('../models/Booking');
 
 // Middleware to check if user is admin
 const isAdmin = async (req, res, next) => {
@@ -39,6 +40,37 @@ router.patch('/users/:id/status', protect, isAdmin, async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// Helper to group bookings by date
+function groupByDate(docs, valueField) {
+  return docs.reduce((acc, doc) => {
+    const date = doc.createdAt.toISOString().slice(0, 10); // YYYY-MM-DD
+    acc[date] = (acc[date] || 0) + (valueField ? doc[valueField] : 1);
+    return acc;
+  }, {});
+}
+
+// Get daily booking counts
+router.get('/stats/bookings', protect, isAdmin, async (req, res) => {
+  try {
+    const bookings = await Booking.find({}).select('createdAt');
+    const grouped = groupByDate(bookings);
+    res.json(grouped);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get daily revenue
+router.get('/stats/revenue', protect, isAdmin, async (req, res) => {
+  try {
+    const bookings = await Booking.find({ status: 'completed' }).select('createdAt totalPrice');
+    const grouped = groupByDate(bookings, 'totalPrice');
+    res.json(grouped);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

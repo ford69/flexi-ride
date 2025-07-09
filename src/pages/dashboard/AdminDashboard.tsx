@@ -9,6 +9,7 @@ import Card, { CardContent, CardHeader } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { Car, User as UserType, Booking } from '../../types';
 import { buildApiUrl, API_ENDPOINTS, API_BASE_URL } from '../../config/api';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts';
 
 interface ApiErrorResponse {
   message: string;
@@ -30,6 +31,8 @@ interface ExtendedCar extends Car {
   approved: boolean;
 }
 
+type ChartData = { date: string; value: number };
+
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'cars' | 'bookings'>('overview');
@@ -42,6 +45,8 @@ const AdminDashboard: React.FC = () => {
     totalBookings: 0,
     totalEarnings: 0
   });
+  const [bookingStats, setBookingStats] = useState<ChartData[]>([]);
+  const [revenueStats, setRevenueStats] = useState<ChartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,6 +88,29 @@ const AdminDashboard: React.FC = () => {
           totalEarnings: bookingsRes.data.reduce((sum: number, booking: Booking) => 
             booking.status === 'completed' ? sum + booking.totalPrice : sum, 0)
         });
+
+        const fetchStats = async () => {
+          try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const config = {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            };
+            const [bookingsRes, revenueRes] = await Promise.all([
+              axios.get(buildApiUrl('/api/admin/stats/bookings'), config),
+              axios.get(buildApiUrl('/api/admin/stats/revenue'), config)
+            ]);
+            // Transform data for recharts
+            setBookingStats(Object.entries(bookingsRes.data).map(([date, value]) => ({ date, value: Number(value) })));
+            setRevenueStats(Object.entries(revenueRes.data).map(([date, value]) => ({ date, value: Number(value) })));
+          } catch {
+            // ignore for now
+          }
+        };
+        fetchStats();
 
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -302,6 +330,35 @@ const AdminDashboard: React.FC = () => {
             </nav>
           </div>
         </div>
+
+        {activeTab === 'overview' && (
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-background-card rounded-lg p-6 shadow">
+              <h3 className="text-lg font-semibold mb-4">Bookings per Day</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={bookingStats}>
+                  <XAxis dataKey="date" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#8884d8" name="Bookings" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="bg-background-card rounded-lg p-6 shadow">
+              <h3 className="text-lg font-semibold mb-4">Revenue per Day</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={revenueStats}>
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
+                  <Line type="monotone" dataKey="value" stroke="#82ca9d" name="Revenue" />
+                  <Legend />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
 
         {activeTab === 'users' && (
           <Card>
