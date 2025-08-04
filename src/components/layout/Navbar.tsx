@@ -70,24 +70,27 @@ const Navbar: React.FC = () => {
           </Button>
         </div>
       )}
-      <nav className="bg-background-dark text-white shadow-md">
+      <nav className="fixed top-0 left-0 w-full z-20 bg-black/40 backdrop-blur-md text-white shadow-none transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Logo + Nav Links */}
             <div className="flex items-center">
-              <Link to="/" className="flex items-center">
-                <img src="/images/flexiride.png" alt="FlexiRide Logo" className="h-10 w-10" />
-                <span className="ml-2 text-xl font-bold text-white">FlexiRide</span>
+              <Link to="/" className="flex items-center" onClick={() => { if (window.location.pathname !== '/') { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}>
+                <img src="/images/flexi-logo.png" alt="FlexiRide Logo" className="h-10 w-15" />
               </Link>
-
               <div className="hidden md:ml-10 md:flex md:space-x-8">
-                <Link to="/" className="text-gray-300 hover:text-primary px-3 py-2 text-sm font-medium">Home</Link>
-                <Link to="/cars" className="text-gray-300 hover:text-primary px-3 py-2 text-sm font-medium">Browse Cars</Link>
-                <Link to="/about" className="text-gray-300 hover:text-primary px-3 py-2 text-sm font-medium">About</Link>
-                <Link to="/contact" className="text-gray-300 hover:text-primary px-3 py-2 text-sm font-medium">Contact</Link>
+                <Link to="/" className="text-white hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors" onClick={e => {
+                  if (window.location.pathname !== '/') return;
+                  e.preventDefault();
+                  const el = document.getElementById('home');
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}>Home</Link>
+                <a href="#how-it-works" className="text-white hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors">How It Works</a>
+                <a href="#services" className="text-white hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors">Services</a>
+                <a href="#partner" className="text-white hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors">Partner With Us</a>
+                <a href="#contact" className="text-white hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors">Contact</a>
               </div>
             </div>
-
             {/* Desktop User Actions */}
             <div className="hidden md:flex items-center space-x-4">
               {isAuthenticated ? (
@@ -98,6 +101,7 @@ const Navbar: React.FC = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => navigate('/login')}
+                    className="text-white border-green-400 hover:bg-green-900/20"
                   >
                     Login
                   </Button>
@@ -105,18 +109,18 @@ const Navbar: React.FC = () => {
                     variant="primary"
                     size="sm"
                     onClick={() => navigate('/register')}
+                    className="bg-green-500 text-white hover:bg-green-600"
                   >
                     Sign Up
                   </Button>
                 </>
               )}
             </div>
-
             {/* Mobile Menu Button */}
             <div className="flex items-center md:hidden">
               <button
                 type="button"
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+                className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-green-400 hover:bg-green-900/20 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"
                 aria-controls="mobile-menu"
                 aria-expanded={isMobileMenuOpen}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -126,17 +130,22 @@ const Navbar: React.FC = () => {
             </div>
           </div>
         </div>
-
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden" id="mobile-menu">
+          <div className="md:hidden bg-black/80 backdrop-blur-md" id="mobile-menu">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <Link to="/" className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">Home</Link>
-              <Link to="/cars" className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">Browse Cars</Link>
-              <Link to="/about" className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">About</Link>
-              <Link to="/contact" className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">Contact</Link>
+              <Link to="/" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors" onClick={e => {
+                if (window.location.pathname !== '/') return;
+                e.preventDefault();
+                const el = document.getElementById('home');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}>Home</Link>
+              <a href="#how-it-works" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors">How It Works</a>
+              <a href="#services" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors">Services</a>
+              <a href="#partner" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors">Partner With Us</a>
+              <a href="#contact" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors">Contact</a>
             </div>
-            <div className="pt-4 pb-3 border-t border-gray-700">
+            <div className="pt-4 pb-3 border-t border-green-900/40">
               {isAuthenticated ? (
                 <div className="px-2 space-y-1">
                   <div className="flex items-center px-5">
@@ -147,18 +156,18 @@ const Navbar: React.FC = () => {
                         className="h-10 w-10 rounded-full object-cover"
                       />
                     ) : (
-                      <UserCircle className="h-10 w-10 text-gray-400" />
+                      <UserCircle className="h-10 w-10 text-white" />
                     )}
                     <div className="ml-3">
                       <div className="text-base font-medium text-white">{user?.name}</div>
-                      <div className="text-sm font-medium text-gray-400">{user?.email}</div>
+                      <div className="text-sm font-medium text-gray-300">{user?.email}</div>
                     </div>
                   </div>
-                  <Link to={getDashboardLink()} className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">Dashboard</Link>
-                  <Link to="/profile" className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">Profile</Link>
+                  <Link to={getDashboardLink()} className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md">Dashboard</Link>
+                  <Link to="/profile" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md">Profile</Link>
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md"
+                    className="flex w-full items-center px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md"
                   >
                     <LogOut className="h-5 w-5 mr-2" />
                     Sign out
@@ -166,8 +175,18 @@ const Navbar: React.FC = () => {
                 </div>
               ) : (
                 <div className="px-2 space-y-1">
-                  <Link to="/login" className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">Login</Link>
-                  <Link to="/register" className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md">Sign Up</Link>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="block w-full text-left px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => navigate('/register')}
+                    className="block w-full text-left px-3 py-2 text-base font-medium text-white bg-green-500 hover:bg-green-600 rounded-md"
+                  >
+                    Sign Up
+                  </button>
                 </div>
               )}
             </div>

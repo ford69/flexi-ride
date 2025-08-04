@@ -50,7 +50,7 @@ const AboutPage: React.FC = () => {
           }
         `}</script>
       </Helmet>
-      <div className="bg-background-dark text-gray-200 min-h-screen">
+      <div className="bg-gray-50 text-gray-900 min-h-screen">
         {/* Hero Section */}
         <section className="relative bg-primary/80 py-16 flex flex-col items-center justify-center text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow">Our Story</h1>

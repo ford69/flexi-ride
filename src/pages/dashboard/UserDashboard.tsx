@@ -195,7 +195,7 @@ const UserDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex justify-center items-center">
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -203,11 +203,11 @@ const UserDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex justify-center items-center">
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-white mb-2">Error Loading Data</h2>
-          <p className="text-gray-400 mb-4">{error}</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
           <Button variant="primary" onClick={() => window.location.reload()}>
             Try Again
           </Button>
@@ -217,59 +217,60 @@ const UserDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12">
+
+    <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">Welcome, {user?.name}</h1>
-            <p className="text-gray-400 mt-1">Manage your bookings and account details</p>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome, {user?.name}</h1>
+            <p className="text-gray-600 mt-1">Manage your bookings and account details</p>
           </div>
           <Link to="/cars">
-            <Button variant="primary" className="mt-4 md:mt-0">
+            <Button variant="primary" className="mt-4 md:mt-0 bg-gradient-to-r from-green-500 to-green-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:from-green-600 hover:to-green-800 transition">
               Browse Cars
             </Button>
           </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-background-card">
-            <CardContent className="flex items-center p-6">
-              <div className="p-3 bg-primary/20 rounded-full mr-4">
-                <Calendar className="h-8 w-8 text-primary" />
+          <Card className="bg-white rounded-xl shadow p-6">
+            <CardContent className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-full mr-4">
+                <Calendar className="h-8 w-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-lg font-semibold text-gray-900">
                   {filteredBookings.filter(b => b.status === 'confirmed' || b.status === 'pending').length}
                 </h3>
-                <p className="text-gray-400">Upcoming Bookings</p>
+                <p className="text-gray-600">Upcoming Bookings</p>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-background-card">
-            <CardContent className="flex items-center p-6">
-              <div className="p-3 bg-primary/20 rounded-full mr-4">
-                <CheckCircle className="h-8 w-8 text-primary" />
+          <Card className="bg-white rounded-xl shadow p-6">
+            <CardContent className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-full mr-4">
+                <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-lg font-semibold text-gray-900">
                   {filteredBookings.filter(b => b.status === 'completed').length}
                 </h3>
-                <p className="text-gray-400">Completed Trips</p>
+                <p className="text-gray-600">Completed Trips</p>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-background-card">
-            <CardContent className="flex items-center p-6">
-              <div className="p-3 bg-primary/20 rounded-full mr-4">
-                <Car className="h-8 w-8 text-primary" />
+          <Card className="bg-white rounded-xl shadow p-6">
+            <CardContent className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-full mr-4">
+                <Car className="h-8 w-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-lg font-semibold text-gray-900">
                   ¢{filteredBookings.reduce((total, booking) => total + booking.totalPrice, 0)}
                 </h3>
-                <p className="text-gray-400">Total Spent</p>
+                <p className="text-gray-600">Total Spent</p>
               </div>
             </CardContent>
           </Card>

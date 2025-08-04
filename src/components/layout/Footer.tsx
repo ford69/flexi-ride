@@ -11,8 +11,8 @@ const Footer: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img src="/images/flexiride.png" alt="FlexiRide Logo" className="h-10 w-10" />
-              <span className="ml-2 text-xl font-bold text-white">FlexiRide</span>
+            <img src="/images/flexi-logo.png" alt="FlexiRide Logo" className="h-10 w-15" />
+              
             </Link>
             </div>
             <p className="text-sm">

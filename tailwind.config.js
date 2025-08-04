@@ -37,7 +37,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter var', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

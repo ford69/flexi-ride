@@ -1,3 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Set Inter as the default font family */
+@layer base {
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* Custom animations for tourist destination cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Stagger animation delays for cards */
+.card-animate-0 { animation-delay: 0s; }
+.card-animate-1 { animation-delay: 0.1s; }
+.card-animate-2 { animation-delay: 0.2s; }
+.card-animate-3 { animation-delay: 0.3s; }
+.card-animate-4 { animation-delay: 0.4s; }
+.card-animate-5 { animation-delay: 0.5s; }
+
+/* Responsive animations */
+@media (max-width: 640px) {
+  .fade-in-up {
+    animation-duration: 0.4s;
+  }
+}
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
+}

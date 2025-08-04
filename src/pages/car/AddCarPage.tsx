@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import {
   Upload, Plus, Minus, MapPin, Car as CarIcon,
-  Coins, Tag
+  Coins, Tag, Check
 } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -11,6 +11,7 @@ import Card, { CardContent, CardHeader, CardFooter } from '../../components/ui/C
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
+import { serviceTypeService, ServiceType } from '../../services/serviceTypeService';
 
 
 type FormValues = {
@@ -19,10 +20,14 @@ type FormValues = {
   year: number;
   type: string;
   description: string;
-  dailyRate: number;
   location: string;
   features: string[];
   images: File[];
+  serviceTypes: Array<{
+    serviceTypeId: string;
+    price: number;
+    isActive: boolean;
+  }>;
 };
 
 const carTypes = [
@@ -43,8 +48,52 @@ const AddCarPage: React.FC = () => {
   const [images, setImages] = useState<File[]>([]);
   const [features, setFeatures] = useState<string[]>(['']);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [selectedServiceTypes, setSelectedServiceTypes] = useState<Array<{
+    serviceTypeId: string;
+    price: number;
+    isActive: boolean;
+  }>>([]);
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
+
+  // Fetch service types on component mount
+  useEffect(() => {
+    const fetchServiceTypes = async () => {
+      try {
+        const types = await serviceTypeService.getServiceTypes();
+        setServiceTypes(types);
+      } catch (error) {
+        console.error('Failed to fetch service types:', error);
+      }
+    };
+    fetchServiceTypes();
+  }, []);
+
+  const handleServiceTypeToggle = (serviceType: ServiceType) => {
+    setSelectedServiceTypes(prev => {
+      const existing = prev.find(st => st.serviceTypeId === serviceType._id);
+      if (existing) {
+        return prev.filter(st => st.serviceTypeId !== serviceType._id);
+      } else {
+        return [...prev, {
+          serviceTypeId: serviceType._id,
+          price: serviceType.defaultPrice,
+          isActive: true
+        }];
+      }
+    });
+  };
+
+  const handleServiceTypePriceChange = (serviceTypeId: string, price: number) => {
+    setSelectedServiceTypes(prev => 
+      prev.map(st => 
+        st.serviceTypeId === serviceTypeId 
+          ? { ...st, price } 
+          : st
+      )
+    );
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const maxImages = 6;
@@ -109,7 +158,6 @@ const AddCarPage: React.FC = () => {
     formData.append('year', values.year.toString());
     formData.append('type', values.type);
     formData.append('description', values.description);
-    formData.append('dailyRate', values.dailyRate.toString());
     formData.append('location', values.location);
 
     filteredFeatures.forEach((feature) => {
@@ -118,6 +166,11 @@ const AddCarPage: React.FC = () => {
 
     images.forEach((imageFile) => {
       formData.append('images', imageFile);
+    });
+
+    // Add service types data
+    selectedServiceTypes.forEach((serviceType) => {
+      formData.append('serviceTypes', JSON.stringify(serviceType));
     });
 
     try {
@@ -141,11 +194,11 @@ const AddCarPage: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen bg-background py-12">
+    <div className="min-h-screen bg-gray-100 pt-24 pb-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Add a New Car</h1>
-          <p className="text-gray-400 mt-1">List your car on FlexiRide and start earning</p>
+          <h1 className="text-3xl font-bold text-black">Add a New Car</h1>
+          <p className="text-gray-600 mt-1">List your car on FlexiRide and start earning</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -157,13 +210,16 @@ const AddCarPage: React.FC = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                     <Input
                       label="Make"
                       error={errors.make?.message}
                       {...register('make', { required: 'Make is required' })}
                       placeholder="e.g. Toyota, BMW, Tesla"
                       icon={<CarIcon className="h-5 w-5 text-gray-400" />}
+                      className="bg-gray-100 text-gray-800 placeholder-gray-400"
                     />
+
 
                     <Input
                       label="Model"
@@ -171,12 +227,13 @@ const AddCarPage: React.FC = () => {
                       {...register('model', { required: 'Model is required' })}
                       placeholder="e.g. Camry, X5, Model 3"
                       icon={<CarIcon className="h-5 w-5 text-gray-400" />}
+                      className="bg-gray-100 text-gray-800 placeholder-gray-400"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-200 mb-1">Year</label>
+                      <label className="block text-sm font-medium text-gray-800 mb-1">Year</label>
                       <Input
                         type="number"
                         error={errors.year?.message}
@@ -186,13 +243,14 @@ const AddCarPage: React.FC = () => {
                           max: { value: new Date().getFullYear() + 1, message: `Year cannot be later than ${new Date().getFullYear() + 1}` }
                         })}
                         placeholder="e.g. 2022"
+                        className="bg-gray-100 text-black placeholder-gray-400"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-200 mb-1">Type</label>
+                      <label className="block text-sm font-medium text-gray-800 mb-1">Type</label>
                       <select
-                        className="w-full px-4 py-2 bg-background-light text-white border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent border-gray-700"
+                        className="w-full px-4 py-2 bg-gray-50 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent border-gray-700"
                         {...register('type', { required: 'Type is required' })}
                       >
                         <option value="">Select Type</option>
@@ -205,9 +263,9 @@ const AddCarPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-200 mb-1">Description</label>
+                    <label className="block text-sm font-medium text-gray-800 mb-1">Description</label>
                     <textarea
-                      className="w-full px-4 py-2 bg-background-light text-white border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent border-gray-700"
+                      className="w-full px-4 py-2 bg-gray-100 text-black placeholder-gray-400 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent border-gray-700"
                       rows={4}
                       placeholder="Describe your car, its condition, special features, etc."
                       {...register('description', {
@@ -220,23 +278,12 @@ const AddCarPage: React.FC = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
-                      label="Daily Rate (¢)"
-                      type="number"
-                      error={errors.dailyRate?.message}
-                      {...register('dailyRate', {
-                        required: 'Daily rate is required',
-                        min: { value: 1, message: 'Rate must be at least ¢500' }
-                      })}
-                      placeholder="e.g. 85"
-                      icon={<Coins className="h-5 w-5 text-gray-400" />}
-                    />
-
-                    <Input
                       label="Location"
                       error={errors.location?.message}
                       {...register('location', { required: 'Location is required' })}
                       placeholder="e.g. Cantoments, Osu"
                       icon={<MapPin className="h-5 w-5 text-gray-400" />}
+                      className="bg-gray-100 text-black placeholder-gray-400"
                     />
                   </div>
                 </CardContent>
@@ -245,7 +292,7 @@ const AddCarPage: React.FC = () => {
               <Card>
                 <CardHeader>
                   <h2 className="text-xl font-semibold text-white">Photos</h2>
-                  <p className="text-sm text-gray-400 mt-1">Upload photos of your car (min. 1, max. 6)</p>
+                  <p className="text-sm text-gray-100 mt-1">Upload photos of your car (min. 1, max. 6)</p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
@@ -292,7 +339,7 @@ const AddCarPage: React.FC = () => {
                   <div className="flex justify-between items-start">
                     <div>
                       <h2 className="text-xl font-semibold text-white">Features</h2>
-                      <p className="text-sm text-gray-400 mt-1">Add features to highlight your car's benefits</p>
+                      <p className="text-sm text-gray-100 mt-1">Add features to highlight your car's benefits</p>
                     </div>
                     <Button
                       type="button"
@@ -315,6 +362,7 @@ const AddCarPage: React.FC = () => {
                             value={feature}
                             onChange={(e) => handleFeatureChange(index, e.target.value)}
                             icon={<Tag className="h-5 w-5 text-gray-400" />}
+                            className="bg-gray-100 text-black placeholder-gray-400"
                           />
                         </div>
                         {features.length > 1 && (
@@ -334,6 +382,59 @@ const AddCarPage: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <h2 className="text-xl font-semibold text-white">Service Types & Pricing</h2>
+                  <p className="text-sm text-gray-100 mt-1">Select which services this car supports and set pricing</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {serviceTypes.map((serviceType) => {
+                      const isSelected = selectedServiceTypes.some(st => st.serviceTypeId === serviceType._id);
+                      const selectedService = selectedServiceTypes.find(st => st.serviceTypeId === serviceType._id);
+                      
+                      return (
+                        <div key={serviceType._id} className="border border-gray-600 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center space-x-3">
+                              <button
+                                type="button"
+                                onClick={() => handleServiceTypeToggle(serviceType)}
+                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                                  isSelected 
+                                    ? 'bg-green-500 border-green-500' 
+                                    : 'border-gray-400'
+                                }`}
+                              >
+                                {isSelected && <Check className="h-3 w-3 text-white" />}
+                              </button>
+                              <div>
+                                <h3 className="font-medium text-white">{serviceType.name}</h3>
+                                <p className="text-sm text-gray-300">{serviceType.description}</p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {isSelected && (
+                            <div className="ml-8">
+                              <Input
+                                type="number"
+                                label={`Price (${serviceType.pricingType.replace('_', ' ')})`}
+                                value={selectedService?.price || serviceType.defaultPrice}
+                                onChange={(e) => handleServiceTypePriceChange(serviceType._id, Number(e.target.value))}
+                                placeholder={`Default: ${serviceType.defaultPrice}`}
+                                className="bg-gray-100 text-black placeholder-gray-400"
+                                icon={<Coins className="h-5 w-5 text-gray-400" />}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             <div className="lg:col-span-1">
@@ -343,7 +444,7 @@ const AddCarPage: React.FC = () => {
                     <h2 className="text-xl font-semibold text-white">Listing Summary</h2>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4 text-gray-300">
+                    <div className="space-y-4 text-gray-600">
                       <p>Your car will be reviewed by our team before it's listed publicly.</p>
                       <p>Approval usually takes 1-2 business days.</p>
                       <p>Make sure all information is accurate and photos clearly show the car's condition.</p>
@@ -364,9 +465,9 @@ const AddCarPage: React.FC = () => {
 
                 <Card className="mt-6">
                   <CardContent>
-                    <div className="space-y-4 text-gray-300 text-sm">
+                    <div className="space-y-4 text-gray-600 text-sm">
                       <div>
-                        <h3 className="text-white font-medium mb-1">Tips for faster approval:</h3>
+                        <h3 className="text-gray-700 font-medium mb-1">Tips for faster approval:</h3>
                         <ul className="list-disc pl-5 space-y-1">
                           <li>Use clear, well-lit photos</li>
                           <li>Include interior and exterior shots</li>

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios, { AxiosError } from 'axios';
 import {
   Car as CarIcon, Coins, Users, PlusCircle, Calendar, Clock,
-  Edit, Trash2, Eye, CheckCircle, XCircle, AlertCircle
+  Edit, Trash2, Eye, CheckCircle, XCircle, AlertCircle, DollarSign
 } from 'lucide-react';
 import Card, { CardContent, CardHeader } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -39,6 +39,7 @@ const OwnerDashboard: React.FC = () => {
   const totalEarnings = bookings.reduce((sum, b) => sum + b.totalPrice, 0);
   const pendingBookings = bookings.filter(b => b.status === 'pending').length;
   const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
+  const totalServiceTypes = cars.reduce((sum, car) => sum + (car.serviceTypes?.length || 0), 0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -214,7 +215,7 @@ const OwnerDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex justify-center items-center">
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -222,11 +223,11 @@ const OwnerDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex justify-center items-center">
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-white mb-2">Error Loading Data</h2>
-          <p className="text-gray-400 mb-4">{error}</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
           <Button variant="primary" onClick={() => window.location.reload()}>
             Try Again
           </Button>
@@ -236,53 +237,66 @@ const OwnerDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12">
+
+    <div className="min-h-screen bg-gray-50 pt-28 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">Owner Dashboard</h1>
-            <p className="text-gray-400 mt-1">Manage your listings and bookings</p>
+            <h1 className="text-3xl font-bold text-gray-900">Owner Dashboard</h1>
+            <p className="text-gray-600 mt-1">Manage your listings and bookings</p>
           </div>
           <Link to="/owner/add-car">
-            <Button variant="primary" className="mt-4 md:mt-0" icon={<PlusCircle className="h-5 w-5 mr-1" />}>
+            <Button variant="primary" className="mt-4 md:mt-0 bg-gradient-to-r from-green-500 to-green-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:from-green-600 hover:to-green-800 transition" icon={<PlusCircle className="h-5 w-5 mr-1" />}>
               Add New Car
             </Button>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-background-card">
-            <CardContent className="flex items-center p-6">
-              <div className="p-3 bg-primary/20 rounded-full mr-4">
-                <CarIcon className="h-8 w-8 text-primary" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-white rounded-xl shadow p-6">
+            <CardContent className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-full mr-4">
+                <CarIcon className="h-8 w-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">{cars.length}</h3>
-                <p className="text-gray-400">Active Listings</p>
+                <h3 className="text-lg font-semibold text-gray-900">{cars.length}</h3>
+                <p className="text-gray-600">Active Listings</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-background-card">
-            <CardContent className="flex items-center p-6">
-              <div className="p-3 bg-primary/20 rounded-full mr-4">
-                <Coins className="h-8 w-8 text-primary" />
+          <Card className="bg-white rounded-xl shadow p-6">
+            <CardContent className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-full mr-4">
+                <Coins className="h-8 w-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">¢{totalEarnings}</h3>
-                <p className="text-gray-400">Total Earnings</p>
+                <h3 className="text-lg font-semibold text-gray-900">¢{totalEarnings}</h3>
+                <p className="text-gray-600">Total Earnings</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-background-card">
-            <CardContent className="flex items-center p-6">
-              <div className="p-3 bg-primary/20 rounded-full mr-4">
-                <Users className="h-8 w-8 text-primary" />
+          <Card className="bg-white rounded-xl shadow p-6">
+            <CardContent className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-full mr-4">
+                <Users className="h-8 w-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">{pendingBookings + confirmedBookings}</h3>
-                <p className="text-gray-400">Active Bookings</p>
+                <h3 className="text-lg font-semibold text-gray-900">{pendingBookings + confirmedBookings}</h3>
+                <p className="text-gray-600">Active Bookings</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white rounded-xl shadow p-6">
+            <CardContent className="flex items-center">
+              <div className="p-3 bg-blue-100 rounded-full mr-4">
+                <DollarSign className="h-8 w-8 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">{totalServiceTypes}</h3>
+                <p className="text-gray-600">Service Types</p>
               </div>
             </CardContent>
           </Card>
@@ -330,11 +344,11 @@ const OwnerDashboard: React.FC = () => {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-700">
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Car</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Daily Rate</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Location</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Actions</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-900 uppercase">Car</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-900 uppercase">Status</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-900 uppercase">Service Types</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-900 uppercase">Location</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-900 uppercase">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -348,7 +362,7 @@ const OwnerDashboard: React.FC = () => {
                                 className="h-10 w-10 rounded-md object-cover mr-3" 
                               />
                               <div>
-                                <div className="text-white">{car.make} {car.model}</div>
+                                <div className="text-gray-500">{car.make} {car.model}</div>
                                 <div className="text-xs text-gray-400">{car.year} • {car.type}</div>
                               </div>
                             </div>
@@ -358,8 +372,25 @@ const OwnerDashboard: React.FC = () => {
                               {car.availability ? 'Available' : 'Unavailable'}
                             </span>
                           </td>
-                          <td className="px-4 py-4 text-white">¢{car.dailyRate}</td>
-                          <td className="px-4 py-4 text-gray-300">{car.location}</td>
+                          <td className="px-4 py-4 text-gray-400">
+                            {car.serviceTypes && car.serviceTypes.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {car.serviceTypes.slice(0, 2).map((service, index) => (
+                                  <span key={index} className="px-2 py-1 text-xs bg-primary/20 text-primary rounded-full">
+                                    {service.serviceTypeId?.name || 'Unknown'}
+                                  </span>
+                                ))}
+                                {car.serviceTypes.length > 2 && (
+                                  <span className="px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded-full">
+                                    +{car.serviceTypes.length - 2} more
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-sm">No services</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 text-gray-400">{car.location}</td>
                           <td className="px-4 py-4 text-right">
                             <div className="flex justify-end gap-2">
                               <Link to={`/cars/${car._id}`}>

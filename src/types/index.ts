@@ -9,6 +9,24 @@ export interface User {
   isVerified: boolean;
 }
 
+export interface ServiceType {
+  _id: string;
+  name: string;
+  code: string;
+  description: string;
+  defaultPrice: number;
+  pricingType: 'per_day' | 'per_hour' | 'per_trip' | 'per_km';
+  icon: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface CarServiceType {
+  serviceTypeId: ServiceType;
+  price: number;
+  isActive: boolean;
+}
+
 export interface Car {
   _id: string;
   ownerId: string;
@@ -17,11 +35,11 @@ export interface Car {
   year: number;
   type: string;
   description: string;
-  dailyRate: number;
   location: string;
   images: string[];
   features: string[];
   availability: boolean;
+  serviceTypes: CarServiceType[];
   createdAt: string;
 }
 

@@ -39,7 +39,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ onFilterChange }) => {
   };
 
   return (
-    <div className="bg-background-card rounded-lg shadow-md p-4 mb-6">
+    <div className="bg-white rounded-lg shadow-md p-4 mb-6">
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col md:flex-row gap-4 mb-4">
           <div className="flex-1">
@@ -50,6 +50,7 @@ const CarFilter: React.FC<CarFilterProps> = ({ onFilterChange }) => {
               onChange={handleInputChange}
               placeholder="Location (city, state)"
               icon={<Search className="h-5 w-5 text-gray-400" />}
+              className="bg-gray-100 text-gray-900 placeholder-gray-400"
             />
           </div>
           <Button

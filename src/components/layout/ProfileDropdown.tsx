@@ -70,15 +70,15 @@ const ProfileDropdown: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-background-card rounded-md shadow-lg py-1 z-50 border border-gray-700">
+        <div className="absolute right-0 mt-2 w-48 bg-gray-50 rounded-md shadow-lg py-1 z-50 border border-white">
           <div className="px-4 py-2 border-b border-gray-700">
-            <p className="text-sm text-white font-medium">{user?.name}</p>
-            <p className="text-xs text-gray-400">{user?.email}</p>
+            <p className="text-sm text-gray-600 font-medium">{user?.name}</p>
+            <p className="text-xs text-gray-600">{user?.email}</p>
           </div>
           
           <Link
             to="/profile"
-            className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-background-light hover:text-white transition-colors duration-200"
+            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-primary hover:text-white transition-colors duration-200"
             onClick={() => setIsOpen(false)}
           >
             <User className="h-4 w-4 mr-3" />
@@ -87,7 +87,7 @@ const ProfileDropdown: React.FC = () => {
           
           <Link
             to={getDashboardLink()}
-            className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-background-light hover:text-white transition-colors duration-200"
+            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-primary hover:text-white transition-colors duration-200"
             onClick={() => setIsOpen(false)}
           >
             <Settings className="h-4 w-4 mr-3" />
@@ -96,7 +96,7 @@ const ProfileDropdown: React.FC = () => {
           
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-background-light hover:text-white transition-colors duration-200"
+            className="flex items-center w-full px-4 py-2 text-sm text-gray-600 hover:bg-primary hover:text-white transition-colors duration-200"
           >
             <LogOut className="h-4 w-4 mr-3" />
             Logout

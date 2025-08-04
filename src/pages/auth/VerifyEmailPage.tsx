@@ -56,8 +56,8 @@ const VerifyEmailPage: React.FC = () => {
   }, [searchParams, setUser, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background-dark text-white">
-      <div className="bg-background-card p-8 rounded-lg shadow-md max-w-md w-full text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
         <h1 className="text-2xl font-bold mb-4">Email Verification</h1>
         <p className={`mb-6 ${status === 'success' ? 'text-primary' : status === 'error' ? 'text-error' : 'text-gray-300'}`}>{message}</p>
         {status === 'success' && (

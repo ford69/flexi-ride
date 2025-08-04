@@ -8,28 +8,88 @@ const { protect } = require('../middleware/authmiddleware'); // your auth middle
 // Create a booking
 router.post('/', protect, async (req, res) => {
   try {
+    // Log incoming booking request
+    console.log('[POST /api/bookings] Incoming request body:', req.body);
+
     // Check if user is verified
     const user = await User.findById(req.user._id);
     if (!user.isVerified) {
+      console.warn('[POST /api/bookings] User not verified:', req.user._id);
       return res.status(403).json({ message: 'Please verify your email before booking a ride.' });
     }
 
-    const { carId, startDate, endDate, totalPrice } = req.body;
-
-    const car = await Car.findById(carId);
-    if (!car) return res.status(404).json({ message: 'Car not found' });
-
-    const booking = await Booking.create({
-      userId: req.user._id, // from auth middleware
+    const {
       carId,
       startDate,
       endDate,
       totalPrice,
-      status: 'pending'
-    });
+      serviceType,
+      flightNumber,
+      terminal,
+      return: isReturn,
+      airportPassengers,
+      from,
+      to,
+      dailyPickup,
+      dailyPassengers,
+      withDriver,
+      outTownCity,
+      outTownPickup,
+      outTownDays,
+      outTownPassengers,
+      outTownReturn,
+      pickupAddress,
+      duration,
+      hourlyPassengers
+    } = req.body;
 
+    const car = await Car.findById(carId);
+    if (!car) {
+      console.warn('[POST /api/bookings] Car not found:', carId);
+      return res.status(404).json({ message: 'Car not found' });
+    }
+
+    // Calculate service charge (25% of base price)
+    const basePrice = totalPrice || 0;
+    const serviceCharge = basePrice * 0.25;
+    const finalTotalPrice = basePrice + serviceCharge;
+
+    const bookingData = {
+      userId: req.user._id,
+      carId,
+      startDate,
+      endDate,
+      basePrice,
+      serviceCharge,
+      totalPrice: finalTotalPrice,
+      status: 'pending',
+      serviceType,
+      flightNumber,
+      terminal,
+      return: isReturn,
+      airportPassengers,
+      from,
+      to,
+      dailyPickup,
+      dailyPassengers,
+      withDriver,
+      outTownCity,
+      outTownPickup,
+      outTownDays,
+      outTownPassengers,
+      outTownReturn,
+      pickupAddress,
+      duration,
+      hourlyPassengers
+    };
+    console.log('[POST /api/bookings] Creating booking with data:', bookingData);
+
+    const booking = await Booking.create(bookingData);
+
+    console.log('[POST /api/bookings] Booking created successfully:', booking._id);
     res.status(201).json(booking);
   } catch (error) {
+    console.error('[POST /api/bookings] Error creating booking:', error);
     res.status(500).json({ message: error.message });
   }
 });

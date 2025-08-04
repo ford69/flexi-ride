@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import logo from '/public/images/flexi-logo.png';
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -24,30 +26,47 @@ const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background-dark text-white">
-      <div className="bg-background-card p-8 rounded-lg shadow-md max-w-md w-full text-center">
-        <h1 className="text-2xl font-bold mb-4">Forgot Password</h1>
-        {submitted ? (
-          <p className="text-primary mb-6">If that email exists, a reset link has been sent.</p>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <Input
-              label="Email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              placeholder="Enter your email"
-            />
-            {error && <p className="text-error text-sm">{error}</p>}
-            <Button type="submit" variant="primary" fullWidth>
-              Send Reset Link
-            </Button>
-          </form>
-        )}
+    <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md mx-auto">
+        <div className="flex justify-center mb-6">
+          <img src={logo} alt="FlexiRide Logo" className="h-12" />
+        </div>
+        <div className="w-full max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+          <div className="text-center mb-10">
+            <h1 className="text-3xl font-extrabold text-gray-900">Forgot Password</h1>
+            <p className="mt-2 text-gray-600">Enter your email to reset your password</p>
+          </div>
+          {submitted ? (
+            <p className="text-primary mb-6 text-center">If that email exists, a reset link has been sent.</p>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <Input
+                label="Email Address"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                placeholder="Enter your email"
+                className="bg-gray-100 text-gray-900 placeholder-gray-400"
+              />
+              {error && <p className="text-error text-sm">{error}</p>}
+              <Button type="submit" variant="primary" fullWidth>
+                Send Reset Link
+              </Button>
+            </form>
+          )}
+          <div className="mt-8 text-center">
+            <p className="text-gray-600">
+              Remember your password?{' '}
+              <Link to="/login" className="text-primary hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default ForgotPasswordPage; 
+export default ForgotPasswordPage;

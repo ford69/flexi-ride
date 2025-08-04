@@ -18,6 +18,7 @@ const authRoutes = require('./routes/auth');
 const carRoutes = require('./routes/car');
 const bookingRoutes = require('./routes/booking');
 const adminRoutes = require('./routes/admin');
+const serviceTypeRoutes = require('./routes/serviceTypes');
 
 const app = express();
 
@@ -57,6 +58,7 @@ const logger = winston.createLogger({
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
+  'http://localhost:5174',
   'https://www.flexiride.co',
   'https://flexiride.co',
 ];
@@ -94,6 +96,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/service-types', serviceTypeRoutes);
 
 
 

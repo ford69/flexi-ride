@@ -1,58 +1,130 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Car as CarIcon, Star, Shield, Clock } from 'lucide-react';
 import Button from '../components/ui/Button';
-import CarFilter from '../components/cars/CarFilter';
-import CarCard from '../components/cars/CarCard';
-import { Car, CarFilter as FilterType } from '../types';
+import Loader from '../components/ui/Loader';
 import { Helmet } from 'react-helmet-async';
-import { buildApiUrl, API_ENDPOINTS } from '../config/api';
+import LandingBookingForm from '../components/bookings/LandingBookingForm';
 
 const HomePage: React.FC = () => {
-  const [cars, setCars] = useState<Car[]>([]);
-  const [filteredCars, setFilteredCars] = useState<Car[]>([]);
+  const [animatedCards, setAnimatedCards] = useState<boolean[]>([]);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [contactLoading, setContactLoading] = useState(false);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Smooth scroll function
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  // Handle scroll events
   useEffect(() => {
-    const fetchCars = async () => {
-      try {
-        const res = await fetch(buildApiUrl(API_ENDPOINTS.CARS.LIST));
-        const data = await res.json();
-        setCars(data);
-        setFilteredCars(data);
-      } catch (err) {
-        console.error('Failed to fetch cars:', err);
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      setShowScrollTop(scrollTop > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = cardsRef.current.findIndex(ref => ref === entry.target);
+            if (index !== -1) {
+              setAnimatedCards(prev => {
+                const newState = [...prev];
+                newState[index] = true;
+                return newState;
+              });
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    );
+
+    // Initialize animatedCards array for 6 cards
+    if (animatedCards.length === 0) {
+      setAnimatedCards(new Array(6).fill(false));
+    }
+
+    cardsRef.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, [animatedCards.length]);
+
+  // Handle navigation clicks
+  useEffect(() => {
+    const handleNavClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('#')) {
+        e.preventDefault();
+        const sectionId = target.getAttribute('href')?.substring(1);
+        if (sectionId) {
+          scrollToSection(sectionId);
+        }
       }
     };
 
-    fetchCars();
+    document.addEventListener('click', handleNavClick);
+    return () => document.removeEventListener('click', handleNavClick);
   }, []);
 
-  const handleFilterChange = (filters: FilterType) => {
-    let filtered = [...cars];
+  // const handleFilterChange = (filters: FilterType) => {
+  //   let filtered = [...cars];
+  //   if (filters.type) {
+  //     filtered = filtered.filter(car => car.type === filters.type);
+  //   }
+  //   if (filters.location) {
+  //     filtered = filtered.filter(car =>
+  //       car.location.toLowerCase().includes(filters.location!.toLowerCase())
+  //     );
+  //   }
+  //   if (filters.minPrice !== undefined) {
+  //     filtered = filtered.filter(car => car.dailyRate >= filters.minPrice!);
+  //   }
+  //   if (filters.maxPrice !== undefined) {
+  //     filtered = filtered.filter(car => car.dailyRate <= filters.maxPrice!);
+  //   }
+  //   setFilteredCars(filtered);
+  // };
 
-    if (filters.type) {
-      filtered = filtered.filter(car => car.type === filters.type);
-    }
-
-    if (filters.location) {
-      filtered = filtered.filter(car =>
-        car.location.toLowerCase().includes(filters.location!.toLowerCase())
-      );
-    }
-
-    if (filters.minPrice !== undefined) {
-      filtered = filtered.filter(car => car.dailyRate >= filters.minPrice!);
-    }
-
-    if (filters.maxPrice !== undefined) {
-      filtered = filtered.filter(car => car.dailyRate <= filters.maxPrice!);
-    }
-
-    setFilteredCars(filtered);
+  // Contact form handler
+  const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setContactLoading(true);
+    setTimeout(() => {
+      setContactLoading(false);
+      // You can add a success message or redirect here
+    }, 1200);
   };
 
   return (
     <>
+      {contactLoading && <Loader />}
       <Helmet>
         <title>FlexiRide | Premium Car Rentals</title>
         <meta name="description" content="Book your perfect ride with FlexiRide. Premium car rental service for every journey. Browse luxury, comfort, and style on the road." />
@@ -96,37 +168,94 @@ const HomePage: React.FC = () => {
           }
         `}</script>
       </Helmet>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         {/* Hero Section */}
-        <section className="relative py-24 bg-background-dark">
-          <div className="absolute inset-0 overflow-hidden">
+        <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+          {/* Background image with dark green overlay */}
+          <div className="absolute inset-0 z-0 overflow-hidden">
             <img
-              src="https://images.pexels.com/photos/1213294/pexels-photo-1213294.jpeg"
-              alt="Luxury car"
-              className="w-full h-full object-cover object-center opacity-20"
+              src="/images/land-cruiser-2024.webp"
+              alt="Luxury car background"
+              className="w-full h-full object-cover object-center scale-110 animate-pulse"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-background-dark to-background-dark/50"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-green-900/80 via-green-800/70 to-black/80"></div>
           </div>
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              Premium Cars for Every Journey
-            </h1>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Book your perfect ride today and experience luxury, comfort, and style on the road.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/cars">
-                <Button variant="primary" size="lg">
-                  Browse Cars
-                </Button>
-              </Link>
+          {/* Floating elements for animation */}
+          <div className="absolute inset-0 z-5">
+            <div className="absolute top-20 left-10 w-20 h-20 bg-green-400/20 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+            <div className="absolute top-40 right-20 w-16 h-16 bg-green-300/20 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute bottom-40 left-20 w-12 h-12 bg-green-500/20 rounded-full animate-bounce" style={{ animationDelay: '2s' }}></div>
+          </div>
+
+          <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between px-4 sm:px-6 lg:px-8 py-12 lg:py-0">
+            {/* Left: Tagline, headline, text, buttons, stats */}
+            <div className="flex-1 flex flex-col items-start justify-center text-left max-w-xl lg:max-w-2xl">
+              <div className="mb-6 animate-fade-in-up">
+                <span className="inline-block bg-green-700/80 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg transform hover:scale-105 transition-transform">
+                  Premium Car Rentals in Ghana
+                </span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                Drive <span className="text-green-400 bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">Premium</span><br />
+                Experience <span className="text-green-400 bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">Luxury</span>
+              </h1>
+              <p className="text-base sm:text-lg text-gray-100 mb-8 max-w-lg animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                Book your perfect ride today and experience luxury, comfort, and style on the road. Hourly, daily, airport, and out-of-town rides available across Ghana.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+                <Link to="/">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="bg-green-500 hover:bg-green-600 text-white font-bold px-8 py-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300"
+                    onClick={(e) => {
+                      // If already on home, scroll. If not, let navigation happen.
+                      if (window.location.pathname === '/') {
+                        e.preventDefault();
+                        const el = document.getElementById('home');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                  >
+                    Book Your Ride
+                  </Button>
+                </Link>
+                <Link to="/cars">
+                  <Button variant="outline" size="lg" className="border-green-400 text-green-300 hover:bg-green-900/20 font-bold px-8 py-4 rounded-lg transform hover:scale-105 transition-all duration-300">
+                    Browse Cars
+                  </Button>
+                </Link>
+              </div>
+              {/* Stats Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-8 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+                <div className="text-center transform hover:scale-110 transition-transform">
+                  <div className="text-xl sm:text-2xl font-bold text-green-400">10k+</div>
+                  <div className="text-xs sm:text-sm text-gray-200">Happy Customers</div>
+                </div>
+                <div className="text-center transform hover:scale-110 transition-transform">
+                  <div className="text-xl sm:text-2xl font-bold text-green-400">500+</div>
+                  <div className="text-xs sm:text-sm text-gray-200">Premium Cars</div>
+                </div>
+                <div className="text-center transform hover:scale-110 transition-transform">
+                  <div className="text-xl sm:text-2xl font-bold text-green-400">50+</div>
+                  <div className="text-xs sm:text-sm text-gray-200">Locations</div>
+                </div>
+                <div className="text-center transform hover:scale-110 transition-transform">
+                  <div className="text-xl sm:text-2xl font-bold text-green-400">24/7</div>
+                  <div className="text-xs sm:text-sm text-gray-200">Support</div>
+                </div>
+              </div>
+            </div>
+            {/* Right: Booking Form Card */}
+            <div className="flex-1 z-10 flex justify-center lg:justify-end w-full mt-12 lg:mt-0 animate-fade-in-up" style={{ animationDelay: '1s' }}>
+              <LandingBookingForm />
             </div>
           </div>
         </section>
 
         {/* Search and Filter Section */}
-        <section className="py-12 bg-background">
+        {/* <section className="py-12 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-white mb-8 text-center">Find Your Perfect Car</h2>
 
@@ -152,10 +281,10 @@ const HomePage: React.FC = () => {
               </Link>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Features Section */}
-        <section className="py-16 bg-background-light">
+        {/* <section className="py-16 bg-background-light">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-white mb-12 text-center">Why Choose FlexiRide</h2>
 
@@ -197,10 +326,10 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Call to Action */}
-        <section className="py-20 bg-primary">
+        {/* <section className="py-20 bg-primary">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Ready to Hit the Road?</h2>
             <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
@@ -219,7 +348,512 @@ const HomePage: React.FC = () => {
               </Link>
             </div>
           </div>
+        </section> */}
+        
+        {/* Our Services Section */}
+        <section id="services" className="py-16 sm:py-20 lg:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12">
+              {/* Global Coverage */}
+              <div className="flex flex-col items-start animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                <svg className="w-10 h-10 mb-4" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" stroke="#111" strokeWidth="2.2" />
+                  <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+                </svg>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Global</h3>
+                <p className="text-gray-600 text-sm mb-3">Wherever your journey leads, WopeCar ensures your comfort along the way.</p>
+                <a href="#" className="inline-flex items-center text-green-700 font-medium hover:text-black transition-colors">
+                  Learn more
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="#059669" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+                </a>
+              </div>
+
+              {/* Professional Drivers */}
+              <div className="flex flex-col items-start animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                <svg className="w-10 h-10 mb-4" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="7" r="4" stroke="#111" strokeWidth="2.2" />
+                  <path d="M5.5 21v-2A6.5 6.5 0 0112 12.5a6.5 6.5 0 016.5 6.5v2" />
+                </svg>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Professional drivers</h3>
+                <p className="text-gray-600 text-sm mb-3">Professional Drivers, Timely Rides, Relaxed Travel</p>
+                <a href="#" className="inline-flex items-center text-green-700 font-medium hover:text-black transition-colors">
+                  Learn more
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="#059669" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+                </a>
+              </div>
+
+              {/* Chauffeur by the Hour */}
+              <div className="flex flex-col items-start animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                <svg className="w-10 h-10 mb-4" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" stroke="#111" strokeWidth="2.2" />
+                  <polyline points="12,6 12,12 16,14" />
+                </svg>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Chauffeur by the hour</h3>
+                <p className="text-gray-600 text-sm mb-3">Hire an hourly chauffeur for your business or leisure needs.</p>
+                <a href="#" className="inline-flex items-center text-green-700 font-medium hover:text-black transition-colors">
+                  Learn more
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="#059669" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+                </a>
+              </div>
+
+              {/* City Rides */}
+              <div className="flex flex-col items-start animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                <svg className="w-10 h-10 mb-4" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 17c0-2.21 3.582-4 8-4s8 1.79 8 4" stroke="#111" strokeWidth="2.2" />
+                  <circle cx="8.5" cy="9.5" r="2.5" />
+                  <circle cx="15.5" cy="9.5" r="2.5" />
+                </svg>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">City rides</h3>
+                <p className="text-gray-600 text-sm mb-3">Explore the city anytime, anywhere—even long distances.</p>
+                <a href="#" className="inline-flex items-center text-green-700 font-medium hover:text-black transition-colors">
+                  Learn more
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="#059669" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+                </a>
+              </div>
+            </div>
+          </div>
         </section>
+        {/* How It Works Section */}
+        <section id="how-it-works" className="py-16 bg-transparent">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-gray-100 rounded-2xl py-16 px-4 sm:px-8 w-full">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-10">How does it work</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Step 1 */}
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-100 text-lg font-bold text-green-700 border-2 border-green-500">1</div>
+                  </div>
+                  <div>
+                    <div className="font-bold text-gray-900 mb-1 text-base">Enter your route and select car</div>
+                    <div className="text-gray-600 text-sm">Enter all the required data in the search field and then choose the desired vehicle.</div>
+                  </div>
+                </div>
+                {/* Step 2 */}
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-100 text-lg font-bold text-green-700 border-2 border-green-500">2</div>
+              </div>
+                  <div>
+                    <div className="font-bold text-gray-900 mb-1 text-base">Complete booking form</div>
+                    <div className="text-gray-600 text-sm">Enter the details of the lead passenger, add extras if you wish. Proceed to payment and receive your voucher.</div>
+              </div>
+                </div>
+                {/* Step 3 */}
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-100 border-2 border-green-500">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
+                    </div>
+              </div>
+                  <div>
+                    <div className="font-bold text-gray-900 mb-1 text-base">Meet your driver</div>
+                    <div className="text-gray-600 text-sm">You will receive your driver's details 6 hours prior to pickup and he will be waiting for you on-site with a Name Sign.</div>
+              </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      {/* Why Choose Us Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-12 text-center">Why Choose Us</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+
+              {/* Card 1 */}
+              <div className="flex flex-col">
+                <img src="/images/city-to-city.jpg" alt="City to City" className="rounded-md object-cover h-40 w-full mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">City-to-City</h3>
+                <p className="text-gray-600 text-sm mb-2">
+                  Travel between cities with ease and comfort. Custom routes and flexible stops.
+                </p>
+                <a href="#" className="text-sm font-medium text-green-600 hover:underline mt-auto">Learn more</a>
+              </div>
+
+              {/* Card 2 */}
+              <div className="flex flex-col">
+                <img src="/images/support.jpg" alt="24/7 Support" className="rounded-md object-cover h-40 w-full mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">24/7 Support</h3>
+                <p className="text-gray-600 text-sm mb-2">
+                  Our team is always available to assist you, day or night, for a seamless experience.
+                </p>
+                <a href="#" className="text-sm font-medium text-green-600 hover:underline mt-auto">Learn more</a>
+              </div>
+
+              {/* Card 3 */}
+              <div className="flex flex-col">
+                <img src="/images/safety.jpg" alt="Safety" className="rounded-md object-cover h-40 w-full mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Safety</h3>
+                <p className="text-gray-600 text-sm mb-2">
+                  All vehicles and drivers are vetted for your safety and peace of mind.
+                </p>
+                <a href="#" className="text-sm font-medium text-green-600 hover:underline mt-auto">Learn more</a>
+              </div>
+
+              {/* Card 4 */}
+              <div className="flex flex-col">
+                <img src="/images/premium.jpg" alt="Premium Cars" className="rounded-md object-cover h-40 w-full mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Premium Cars</h3>
+                <p className="text-gray-600 text-sm mb-2">
+                  Choose from a wide range of premium and luxury vehicles to match your style.
+                </p>
+                <a href="#" className="text-sm font-medium text-green-600 hover:underline mt-auto">Learn more</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Partner With Us Section */}
+      <section id="partner" className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-12 text-center">Partner With Us</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Vehicle Owners */}
+            <div className="bg-white rounded-xl shadow p-8 flex flex-col items-center text-center hover:shadow-lg transition">
+              <div className="p-4 bg-green-100 rounded-full mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 13l2-2m0 0l7-7 7 7M5 11v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" /></svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Vehicle Owners</h3>
+                <p className="text-gray-600 text-sm mb-4">List your car and earn income by joining our premium fleet. Flexible terms and full support.</p>
+              <button className="bg-gradient-to-r from-green-500 to-green-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:from-green-600 hover:to-green-800 transition">Become Partner</button>
+            </div>
+            {/* Drivers */}
+            <div className="bg-white rounded-xl shadow p-8 flex flex-col items-center text-center hover:shadow-lg transition">
+              <div className="p-4 bg-green-100 rounded-full mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M16 12a4 4 0 01-8 0" /></svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Drivers</h3>
+                <p className="text-gray-600 text-sm mb-4">Join our network of professional drivers. Enjoy flexible hours and competitive earnings.</p>
+              <button className="bg-gradient-to-r from-green-500 to-green-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:from-green-600 hover:to-green-800 transition">Become Partner</button>
+            </div>
+            {/* Transport Companies */}
+            <div className="bg-white rounded-xl shadow p-8 flex flex-col items-center text-center hover:shadow-lg transition">
+              <div className="p-4 bg-green-100 rounded-full mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M16 3v4M8 3v4" /></svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Transport Companies</h3>
+                <p className="text-gray-600 text-sm mb-4">Partner with us to expand your reach and grow your business with our platform.</p>
+              <button className="bg-gradient-to-r from-green-500 to-green-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:from-green-600 hover:to-green-800 transition">Become Partner</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* FAQ Section */}
+      <section className="py-16 bg-gradient-to-r from-green-500 to-green-700">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-12 text-center">Frequently Asked Questions</h2>
+          <div className="space-y-4">
+            {/* FAQ 1 */}
+            <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                How do I book a ride?
+                <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <div className="mt-2 text-white">
+                Simply select your service, fill in your details, and submit the booking form. You'll receive instant confirmation and details.
+              </div>
+            </details>
+            {/* FAQ 2 */}
+            <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                Can I cancel or modify my booking?
+                <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <div className="mt-2 text-white">
+                Yes, you can cancel or modify your booking up to 24 hours before pickup with no penalty.
+              </div>
+            </details>
+            {/* FAQ 3 */}
+            <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                What payment methods do you accept?
+                <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <div className="mt-2 text-white">
+                We accept all major credit/debit cards, mobile money, and bank transfers.
+              </div>
+            </details>
+            {/* FAQ 4 */}
+            <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                Are your cars insured and drivers vetted?
+                <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <div className="mt-2 text-white">
+                Yes, all our vehicles are fully insured and our drivers are thoroughly vetted for your safety.
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+        {/* Tourist Destinations Section */}
+        <section className="py-16 sm:py-20 lg:py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12 sm:mb-16 animate-fade-in-up">
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                Destination Ghana with Flexiride
+              </h3>
+              <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto">
+                Travel in comfort, safety, and convenience with professional drivers and hassle-free pickups. Reserve your transfer today and enjoy a stress-free journey from start to finish!
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {/* Accra */}
+              <div
+                ref={el => cardsRef.current[0] = el}
+                className={`group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer ${animatedCards[0] ? 'fade-in-up card-animate-0' : 'opacity-0 translate-y-10'}`}
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src="/images/accra.webp"
+                    alt="Accra"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <div className="flex items-center justify-center space-x-2">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    <span className="text-white font-semibold text-lg">Accra</span>
+                  </div>
+                  <div className="text-center mt-1">
+                    <span className="text-white/90 text-sm">Greater Accra</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Kumasi */}
+              <div
+                ref={el => cardsRef.current[1] = el}
+                className={`group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer ${animatedCards[1] ? 'fade-in-up card-animate-1' : 'opacity-0 translate-y-10'}`}
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src="/images/kumasi.avif"
+                    alt="Kumasi"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <div className="flex items-center justify-center space-x-2">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    <span className="text-white font-semibold text-lg">Kumasi Central</span>
+                  </div>
+                  <div className="text-center mt-1">
+                    <span className="text-white/90 text-sm">Ashanti Region</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tamale */}
+              <div
+                ref={el => cardsRef.current[2] = el}
+                className={`group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer ${animatedCards[2] ? 'fade-in-up card-animate-2' : 'opacity-0 translate-y-10'}`}
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src="/images/tamale-1.jpg"
+                    alt="Tamale"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <div className="flex items-center justify-center space-x-2">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    <span className="text-white font-semibold text-lg">Northern Region</span>
+                  </div>
+                  <div className="text-center mt-1">
+                    <span className="text-white/90 text-sm">Tamale</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Cape Coast */}
+              <div
+                ref={el => cardsRef.current[3] = el}
+                className={`group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer ${animatedCards[3] ? 'fade-in-up card-animate-3' : 'opacity-0 translate-y-10'}`}
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src="/images/cape-coast.jpeg"
+                    alt="Cape Coast"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <div className="flex items-center justify-center space-x-2">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    <span className="text-white font-semibold text-lg">Cape Coast</span>
+                  </div>
+                  <div className="text-center mt-1">
+                    <span className="text-white/90 text-sm">Cape Coast Beach</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Takoradi */}
+              <div
+                ref={el => cardsRef.current[4] = el}
+                className={`group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer ${animatedCards[4] ? 'fade-in-up card-animate-4' : 'opacity-0 translate-y-10'}`}
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src="/images/nzulezu.jpg"
+                    alt="Takoradi"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <div className="flex items-center justify-center space-x-2">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    <span className="text-white font-semibold text-lg">Western Region</span>
+                  </div>
+                  <div className="text-center mt-1">
+                    <span className="text-white/90 text-sm">Nzulezu</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ho */}
+              <div
+                ref={el => cardsRef.current[5] = el}
+                className={`group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer ${animatedCards[5] ? 'fade-in-up card-animate-5' : 'opacity-0 translate-y-10'}`}
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src="/images/mountain-afadjato.jpg"
+                    alt="Ho"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <div className="flex items-center justify-center space-x-2">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    <span className="text-white font-semibold text-lg">Volta Region</span>
+                  </div>
+                  <div className="text-center mt-1">
+                    <span className="text-white/90 text-sm">Mt. Afadzato</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Contact Section */}
+        <section id="contact" className="py-16 sm:py-20 lg:py-24 bg-gray-50">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-12 sm:mb-16 text-center animate-fade-in-up">
+              Get In Touch
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+              {/* Contact Info */}
+              <div className="space-y-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">Phone</h3>
+                    <p className="text-gray-600 text-sm">+233 20 123 4567</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">Email</h3>
+                    <p className="text-gray-600 text-sm">info@flexiride.com</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">Address</h3>
+                    <p className="text-gray-600 text-sm">Accra, Ghana</p>
+                  </div>
+                </div>
+              </div>
+              {/* Contact Form */}
+              <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                <form className="space-y-4" onSubmit={handleContactSubmit}>
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <input
+                      type="text"
+                      id="name"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Your name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      id="email"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="your@email.com"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                    <textarea
+                      id="message"
+                      rows={4}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Your message..."
+                      required
+                    ></textarea>
+                  </div>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transform hover:scale-105 transition-all duration-300"
+                  >
+                    Send Message
+                  </Button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+        {/* Scroll to Top Button */}
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 z-50 p-3 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 hover:scale-110 transition-all duration-300 transform"
+            aria-label="Scroll to top"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          </button>
+        )}
       </div>
     </>
   );

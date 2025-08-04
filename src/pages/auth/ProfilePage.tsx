@@ -20,10 +20,10 @@ const ProfilePage: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-dark text-white">
-        <div className="bg-background-card p-8 rounded-lg shadow-md max-w-md w-full text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
+        <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center border border-gray-100">
           <h1 className="text-2xl font-bold mb-4">Profile</h1>
-          <p className="text-error">You must be logged in to view your profile.</p>
+          <p className="text-red-600">You must be logged in to view your profile.</p>
         </div>
       </div>
     );
@@ -161,37 +161,36 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background-dark text-white py-8">
+    <div className="min-h-screen bg-gray-50 pt-28 pb-16">
       <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-8 text-center">My Profile</h1>
-        
+        <h1 className="text-3xl sm:text-4xl font-extrabold mb-10 text-center text-gray-900">My Profile</h1>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Profile Information */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold">Profile Information</h2>
+          <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+            <CardHeader className="bg-green-700 rounded-t-2xl p-6">
+              <h2 className="text-xl font-bold text-white">Profile Information</h2>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-8 bg-green-50 rounded-b-2xl p-6">
               {/* Avatar Section */}
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-6">
                 <div className="relative">
                   {user?.avatar ? (
                     <img
                       src={`http://localhost:5001${user.avatar}`}
                       alt={user.name}
-                      className="h-20 w-20 rounded-full object-cover border-4 border-gray-600"
+                      className="h-24 w-24 rounded-full object-cover border-4 border-green-600 shadow-md bg-white"
                     />
                   ) : (
-                    <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center text-white text-xl font-bold border-4 border-gray-600">
+                    <div className="h-24 w-24 rounded-full bg-green-200 flex items-center justify-center text-green-800 text-2xl font-bold border-4 border-green-600 shadow-md">
                       {getInitials(user.name)}
                     </div>
                   )}
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="absolute -bottom-1 -right-1 h-8 w-8 bg-primary rounded-full flex items-center justify-center hover:bg-primary/80 transition-colors"
+                    className="absolute -bottom-2 -right-2 h-9 w-9 bg-green-600 border-4 border-white rounded-full flex items-center justify-center hover:bg-green-700 transition-colors shadow-lg"
                     disabled={isUploadingAvatar}
                   >
-                    <Camera className="h-4 w-4 text-white" />
+                    <Camera className="h-5 w-5 text-white" />
                   </button>
                   <input
                     ref={fileInputRef}
@@ -202,17 +201,17 @@ const ProfilePage: React.FC = () => {
                   />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold">{user.name}</h3>
-                  <p className="text-gray-400">{user.email}</p>
+                  <h3 className="text-lg font-bold text-gray-900">{user.name}</h3>
+                  <p className="text-gray-500">{user.email}</p>
                   {isUploadingAvatar && (
-                    <p className="text-sm text-primary mt-1">Uploading avatar...</p>
+                    <p className="text-sm text-green-700 mt-1">Uploading avatar...</p>
                   )}
                 </div>
               </div>
 
               {/* Name Edit Section */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-300">Name</label>
+                <label className="block text-sm font-medium text-gray-700">Name</label>
                 {isEditingName ? (
                   <div className="flex space-x-2">
                     <Input
@@ -240,12 +239,13 @@ const ProfilePage: React.FC = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between p-3 bg-background-light rounded-md">
-                    <span>{user.name}</span>
+                  <div className="flex items-center justify-between p-3 bg-white rounded-md border border-gray-200">
+                    <span className="text-gray-900">{user.name}</span>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsEditingName(true)}
+                      className="text-green-700 hover:bg-green-100"
                     >
                       Edit
                     </Button>
@@ -255,23 +255,23 @@ const ProfilePage: React.FC = () => {
 
               {/* Email (Read-only) */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-300">Email</label>
-                <div className="p-3 bg-background-light rounded-md text-gray-400">
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <div className="p-3 bg-white rounded-md border border-gray-200 text-gray-500">
                   {user.email}
                 </div>
               </div>
 
-              {success && <p className="text-primary text-sm">{success}</p>}
-              {error && <p className="text-error text-sm">{error}</p>}
+              {success && <p className="text-green-700 text-sm font-medium">{success}</p>}
+              {error && <p className="text-red-600 text-sm font-medium">{error}</p>}
             </CardContent>
           </Card>
 
           {/* Change Password */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold">Change Password</h2>
+          <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+            <CardHeader className="bg-green-700 rounded-t-2xl p-6">
+              <h2 className="text-xl font-bold text-white">Change Password</h2>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-green-50 rounded-b-2xl p-6">
               <form onSubmit={handlePasswordChange} className="space-y-4">
                 <Input
                   label="Current Password"
@@ -297,7 +297,7 @@ const ProfilePage: React.FC = () => {
                   required
                   placeholder="Confirm new password"
                 />
-                <Button type="submit" variant="primary" fullWidth isLoading={isSubmitting}>
+                <Button type="submit" variant="primary" fullWidth isLoading={isSubmitting} className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transform hover:scale-105 transition-all duration-300">
                   Change Password
                 </Button>
               </form>

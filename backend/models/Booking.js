@@ -19,6 +19,14 @@ const bookingSchema = new mongoose.Schema({
     type: Date, 
     required: true 
   },
+  basePrice: { 
+    type: Number, 
+    required: true 
+  },
+  serviceCharge: { 
+    type: Number, 
+    required: true 
+  },
   totalPrice: { 
     type: Number, 
     required: true 
@@ -40,7 +48,26 @@ const bookingSchema = new mongoose.Schema({
   currency: {
     type: String,
     default: 'GHS'
-  }
+  },
+  // Additional fields for context-aware booking
+  serviceType: { type: String },
+  flightNumber: { type: String },
+  terminal: { type: String },
+  return: { type: Boolean },
+  airportPassengers: { type: Number },
+  from: { type: String },
+  to: { type: String },
+  dailyPickup: { type: String },
+  dailyPassengers: { type: Number },
+  withDriver: { type: Boolean },
+  outTownCity: { type: String },
+  outTownPickup: { type: String },
+  outTownDays: { type: String },
+  outTownPassengers: { type: Number },
+  outTownReturn: { type: Boolean },
+  pickupAddress: { type: String },
+  duration: { type: String },
+  hourlyPassengers: { type: Number }
 }, { 
   timestamps: true 
 });

@@ -1,5 +1,21 @@
 const mongoose = require('mongoose');
 
+const carServiceTypeSchema = new mongoose.Schema({
+  serviceTypeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ServiceType',
+    required: true
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  }
+});
+
 const carSchema = new mongoose.Schema({
   ownerId: { type: String, required: true },
   make: String,
@@ -7,11 +23,12 @@ const carSchema = new mongoose.Schema({
   year: Number,
   type: String,
   description: String,
-  dailyRate: Number,
+  // dailyRate field removed - pricing is now handled by serviceTypes
   location: String,
   images: [String],
   features: [String],
   availability: { type: Boolean, default: true },
+  serviceTypes: [carServiceTypeSchema], // New field for multiple service types
   createdAt: { type: Date, default: Date.now },
 });
 

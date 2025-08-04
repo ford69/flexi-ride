@@ -35,10 +35,21 @@ type ChartData = { date: string; value: number };
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'cars' | 'bookings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'cars' | 'bookings' | 'service-types'>('overview');
   const [users, setUsers] = useState<ExtendedUser[]>([]);
   const [cars, setCars] = useState<ExtendedCar[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [serviceTypes, setServiceTypes] = useState<Array<{
+    _id: string;
+    name: string;
+    code: string;
+    description: string;
+    isActive: boolean;
+    defaultPrice: number;
+    pricingType: string;
+    icon: string;
+    sortOrder: number;
+  }>>([]);
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalCars: 0,
@@ -70,15 +81,17 @@ const AdminDashboard: React.FC = () => {
         };
 
         // Fetch all data in parallel
-        const [usersRes, carsRes, bookingsRes] = await Promise.all([
+        const [usersRes, carsRes, bookingsRes, serviceTypesRes] = await Promise.all([
           axios.get(buildApiUrl(API_ENDPOINTS.ADMIN.USERS), config),
           axios.get(buildApiUrl(API_ENDPOINTS.CARS.LIST), config),
-          axios.get(buildApiUrl(API_ENDPOINTS.BOOKINGS.LIST), config)
+          axios.get(buildApiUrl(API_ENDPOINTS.BOOKINGS.LIST), config),
+          axios.get(buildApiUrl('/api/service-types'), config)
         ]);
 
         setUsers(usersRes.data);
         setCars(carsRes.data);
         setBookings(bookingsRes.data);
+        setServiceTypes(serviceTypesRes.data);
 
         // Calculate dashboard stats
         setStats({
@@ -193,7 +206,7 @@ const AdminDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex justify-center items-center">
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -201,11 +214,11 @@ const AdminDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex justify-center items-center">
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-white mb-2">Error Loading Data</h2>
-          <p className="text-gray-400 mb-4">{error}</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
           <Button variant="primary" onClick={() => window.location.reload()}>
             Try Again
           </Button>
@@ -215,46 +228,47 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12">
+
+    <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
-          <p className="text-gray-400 mt-1">Manage users, cars, and bookings</p>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-600 mt-1">Manage users, cars, and bookings</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-background-card">
-            <CardContent className="flex items-center p-6">
-              <div className="p-3 bg-primary/20 rounded-full mr-4">
-                <Users className="h-8 w-8 text-primary" />
+          <Card className="bg-white rounded-xl shadow p-6">
+            <CardContent className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-full mr-4">
+                <Users className="h-8 w-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">{stats.totalUsers}</h3>
-                <p className="text-gray-400">Total Users</p>
+                <h3 className="text-lg font-semibold text-gray-900">{stats.totalUsers}</h3>
+                <p className="text-gray-600">Total Users</p>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-background-card">
-            <CardContent className="flex items-center p-6">
-              <div className="p-3 bg-primary/20 rounded-full mr-4">
-                <CarFront className="h-8 w-8 text-primary" />
+          <Card className="bg-white rounded-xl shadow p-6">
+            <CardContent className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-full mr-4">
+                <CarFront className="h-8 w-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">{stats.totalCars}</h3>
-                <p className="text-gray-400">Listed Cars</p>
+                <h3 className="text-lg font-semibold text-gray-900">{stats.totalCars}</h3>
+                <p className="text-gray-600">Listed Cars</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-background-card">
-            <CardContent className="flex items-center p-6">
-              <div className="p-3 bg-primary/20 rounded-full mr-4">
-                <Calendar className="h-8 w-8 text-primary" />
+          <Card className="bg-white rounded-xl shadow p-6">
+            <CardContent className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-full mr-4">
+                <Calendar className="h-8 w-8 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">{stats.totalBookings}</h3>
-                <p className="text-gray-400">Total Bookings</p>
+                <h3 className="text-lg font-semibold text-gray-900">{stats.totalBookings}</h3>
+                <p className="text-gray-600">Total Bookings</p>
               </div>
             </CardContent>
           </Card>
@@ -325,6 +339,19 @@ const AdminDashboard: React.FC = () => {
                 <div className="flex items-center">
                   <Calendar className="h-5 w-5 mr-2" />
                   <span>Bookings</span>
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('service-types')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                  activeTab === 'service-types'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className="flex items-center">
+                  <DollarSign className="h-5 w-5 mr-2" />
+                  <span>Service Types</span>
                 </div>
               </button>
             </nav>
@@ -471,7 +498,7 @@ const AdminDashboard: React.FC = () => {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Car</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Owner</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Daily Rate</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Service Types</th>
                       <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Actions</th>
                     </tr>
                   </thead>
@@ -522,7 +549,22 @@ const AdminDashboard: React.FC = () => {
                             </span>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-white">
-                            ¢{car.dailyRate}
+                            {car.serviceTypes && car.serviceTypes.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {car.serviceTypes.slice(0, 2).map((service, index) => (
+                                  <span key={index} className="px-2 py-1 text-xs bg-primary/20 text-primary rounded-full">
+                                    {service.serviceTypeId?.name || 'Unknown'}
+                                  </span>
+                                ))}
+                                {car.serviceTypes.length > 2 && (
+                                  <span className="px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded-full">
+                                    +{car.serviceTypes.length - 2} more
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-sm">No services</span>
+                            )}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-right">
                             <div className="flex justify-end space-x-2">
@@ -644,6 +686,75 @@ const AdminDashboard: React.FC = () => {
                         </tr>
                       );
                     })}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'service-types' && (
+          <Card>
+            <CardHeader>
+              <h2 className="text-xl font-semibold text-white">Service Types</h2>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-700">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Name</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Code</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Description</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Pricing Type</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Default Price</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {serviceTypes.map((serviceType) => (
+                      <tr key={serviceType._id} className="border-b border-gray-700 hover:bg-background-light/30">
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <DollarSign className="h-5 w-5 text-primary mr-2" />
+                            <span className="text-white">{serviceType.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-300">
+                          {serviceType.code}
+                        </td>
+                        <td className="px-4 py-4 text-gray-300">
+                          <span className="truncate block max-w-xs">{serviceType.description}</span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs rounded-full ${
+                            serviceType.pricingType === 'per_hour'
+                              ? 'bg-blue-100 text-blue-800'
+                              : serviceType.pricingType === 'per_trip'
+                              ? 'bg-green-100 text-green-800'
+                              : serviceType.pricingType === 'per_km'
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {serviceType.pricingType === 'per_hour' ? 'Per Hour' :
+                             serviceType.pricingType === 'per_trip' ? 'Per Trip' :
+                             serviceType.pricingType === 'per_km' ? 'Per KM' : 'Per Day'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-white">
+                          ₵{serviceType.defaultPrice}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs rounded-full ${
+                            serviceType.isActive
+                              ? 'bg-success/20 text-success'
+                              : 'bg-error/20 text-error'
+                          }`}>
+                            {serviceType.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

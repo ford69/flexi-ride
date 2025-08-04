@@ -37,8 +37,8 @@ const ResetPasswordPage: React.FC = () => {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-dark text-white">
-        <div className="bg-background-card p-8 rounded-lg shadow-md max-w-md w-full text-center">
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
           <h1 className="text-2xl font-bold mb-4">Reset Password</h1>
           <p className="text-error">Invalid or missing reset token.</p>
           <Link to="/forgot-password">
@@ -50,8 +50,8 @@ const ResetPasswordPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background-dark text-white">
-      <div className="bg-background-card p-8 rounded-lg shadow-md max-w-md w-full text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
         <h1 className="text-2xl font-bold mb-4">Reset Password</h1>
         {submitted ? (
           <>
