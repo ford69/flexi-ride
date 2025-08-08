@@ -198,8 +198,8 @@ const HomePage: React.FC = () => {
                 </span>
               </div> */}
               <h1 className="text-3xl text-shadow-lg sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                Ride <span className="text-[#277f75] bg-clip-text text-transparent">in Style</span><br />
-                Arrive <span className="text-[#277f75] bg-clip-text text-transparent">in Comfort</span>
+                Ride <span className="text-[#277f75] bg-clip-text ">in Style</span><br />
+                Arrive <span className="text-[#277f75] bg-clip-text ">in Comfort</span>
               </h1>
               <p className="text-base text-shadow-lg sm:text-lg text-gray-100 mb-8 max-w-lg animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                 Your perfect ride awaits. Book now for a seamless experience across Ghana. Whether it’s hourly, daily, airport transfers, or out-of-town trips, we’ve got you covered.
