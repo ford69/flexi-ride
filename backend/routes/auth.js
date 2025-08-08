@@ -46,15 +46,24 @@ router.post('/register', async (req, res) => {
     // Create and save user (password will be hashed by model)
     const user = await User.create({ name, email, password, role, verificationToken, verificationTokenExpires });
 
-    // Send verification email via SendGrid
-    const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
-    const msg = {
-      to: user.email,
-      from: process.env.SENDGRID_FROM || 'info@flexiride.co',
-      subject: 'Verify your FlexiRide account',
-      html: `<h2>Welcome to FlexiRide!</h2><p>Please verify your email by clicking the link below:</p><a href="${verifyUrl}">${verifyUrl}</a>`
-    };
-    await sgMail.send(msg);
+    // Send verification email via SendGrid (if configured)
+    if (process.env.SENDGRID_API_KEY) {
+      try {
+        const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
+        const msg = {
+          to: user.email,
+          from: process.env.SENDGRID_FROM || 'info@flexiride.co',
+          subject: 'Verify your FlexiRide account',
+          html: `<h2>Welcome to FlexiRide!</h2><p>Please verify your email by clicking the link below:</p><a href="${verifyUrl}">${verifyUrl}</a>`
+        };
+        await sgMail.send(msg);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+        // Continue with registration even if email fails
+      }
+    } else {
+      console.log('SendGrid not configured - skipping email verification');
+    }
 
     res.status(201).json({
       id: user._id,
@@ -62,7 +71,9 @@ router.post('/register', async (req, res) => {
       email: user.email,
       role: user.role,
       isVerified: user.isVerified,
-      message: 'Registration successful. Please check your email to verify your account.'
+      message: process.env.SENDGRID_API_KEY 
+        ? 'Registration successful. Please check your email to verify your account.'
+        : 'Registration successful. Email verification is not configured.'
     });
   } catch (err) {
     res.status(500).json({ message: 'Registration failed', error: err.message });
