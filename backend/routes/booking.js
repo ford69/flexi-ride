@@ -49,10 +49,10 @@ router.post('/', protect, async (req, res) => {
       return res.status(404).json({ message: 'Car not found' });
     }
 
-    // Calculate service charge (25% of base price)
-    const basePrice = totalPrice || 0;
-    const serviceCharge = basePrice * 0.25;
-    const finalTotalPrice = basePrice + serviceCharge;
+    // The totalPrice now includes the service charge (already applied when car was created)
+    const finalTotalPrice = totalPrice || 0;
+    const basePrice = Math.round(finalTotalPrice / 1.25); // Extract base price
+    const serviceCharge = finalTotalPrice - basePrice;
 
     const bookingData = {
       userId: req.user._id,

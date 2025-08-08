@@ -16,7 +16,7 @@ const Card: React.FC<CardProps> = ({ children, className = '' }) => {
 
 export const CardHeader: React.FC<CardProps> = ({ children, className = '' }) => {
   return (
-    <div className={`p-4 border-b bg-gradient-to-r from-green-500 to-green-700 text-black ${className}`}>
+    <div className={`p-4 border-b bg-[#277f75] text-black ${className}`}>
       {children}
     </div>
   );

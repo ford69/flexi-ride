@@ -23,7 +23,14 @@ export interface ServiceType {
 
 export interface CarServiceType {
   serviceTypeId: ServiceType;
-  price: number;
+  basePrice: number;
+  totalPrice: number;
+  displayPrice?: number;
+  priceBreakdown?: {
+    basePrice: number;
+    serviceCharge: number;
+    totalPrice: number;
+  };
   isActive: boolean;
 }
 

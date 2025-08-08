@@ -42,8 +42,10 @@ const CarCard: React.FC<CarCardProps> = ({ car, selectedServiceType }) => {
         label = '/day';
     }
 
+    const price = selectedService.displayPrice || selectedService.totalPrice || selectedService.basePrice || 0;
+
     return {
-      price: selectedService.price,
+      price,
       label,
       pricingType
     };
@@ -91,17 +93,17 @@ const CarCard: React.FC<CarCardProps> = ({ car, selectedServiceType }) => {
           </div>
         </div>
         <div className="mt-auto">
-          <div className="text-sm text-gray-500 mb-1">
-            {selectedServiceType ? `${selectedServiceType.replace('-', ' ').toUpperCase()}` : 'from'}
-          </div>
-          <div className="text-xl font-bold text-primary mb-2">
-            {serviceInfo.price > 0 ? (
-              <>₵{serviceInfo.price.toLocaleString()}<span className="text-base font-normal text-gray-700">{serviceInfo.label}</span></>
-            ) : (
-              <>₵--<span className="text-base font-normal text-gray-700">{serviceInfo.label}</span></>
-            )}
-          </div>
-          <Link to={`/cars/${car._id}`}>
+                  <div className="text-sm text-gray-500 mb-1">
+          {selectedServiceType ? `${selectedServiceType.replace('-', ' ').toUpperCase()}` : 'from'}
+        </div>
+        <div className="text-xl font-bold text-primary mb-2">
+          {serviceInfo.price > 0 ? (
+            <>₵{serviceInfo.price.toLocaleString()}<span className="text-base font-normal text-gray-700">{serviceInfo.label}</span></>
+          ) : (
+            <>₵--<span className="text-base font-normal text-gray-700">{serviceInfo.label}</span></>
+          )}
+        </div>
+          <Link to={`/cars/${car._id}${selectedServiceType ? `?serviceType=${selectedServiceType}` : ''}`}>
             <Button variant="primary" fullWidth>
               View Details
             </Button>

@@ -204,28 +204,28 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <Button variant="primary" onClick={() => window.location.reload()}>
-            Try Again
-          </Button>
+      if (isLoading) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
+
+      if (error) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button variant="primary" onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </div>
+        </div>
+      );
+    }
 
   return (
 

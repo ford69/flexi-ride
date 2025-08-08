@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  MapPin, Calendar, DollarSign, Clock, User, Star, ChevronLeft,
-  ChevronRight, Shield, LifeBuoy, Award, Check, Car as CarIcon
+  MapPin, Calendar, Clock, User, Star, ChevronLeft,
+  ChevronRight, Shield, LifeBuoy, Award, Coins, Check, Car as CarIcon
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import BookingForm from '../../components/bookings/BookingForm';
@@ -52,14 +52,20 @@ const CarDetailPage: React.FC = () => {
   let localBookingData: Record<string, unknown> | null = null;
   try {
     const data = localStorage.getItem('bookingData');
-    if (data) localBookingData = JSON.parse(data);
+    if (data) {
+      localBookingData = JSON.parse(data);
+    }
   } catch {
     // Ignore JSON parse errors
   }
 
   // Helper function to get service type price and label
   const getServiceTypeInfo = () => {
+    console.log('CarDetailPage - selectedServiceType:', selectedServiceType);
+    console.log('CarDetailPage - car.serviceTypes:', car?.serviceTypes?.map(st => st.serviceTypeId?.code));
+    
     if (!selectedServiceType || !car?.serviceTypes || car.serviceTypes.length === 0) {
+      console.log('CarDetailPage - No service type selected or no service types available');
       return { price: 0, label: '/day', pricingType: 'per_day' };
     }
 
@@ -67,7 +73,10 @@ const CarDetailPage: React.FC = () => {
       st.serviceTypeId && st.serviceTypeId.code === selectedServiceType
     );
 
+    console.log('CarDetailPage - Selected service:', selectedService);
+
     if (!selectedService) {
+      console.log('CarDetailPage - No matching service found');
       return { price: 0, label: '/day', pricingType: 'per_day' };
     }
 
@@ -88,8 +97,10 @@ const CarDetailPage: React.FC = () => {
         label = '/day';
     }
 
+    const price = selectedService.displayPrice || selectedService.totalPrice || selectedService.basePrice || 0;
+
     return {
-      price: selectedService.price,
+      price,
       label,
       pricingType
     };
@@ -97,10 +108,16 @@ const CarDetailPage: React.FC = () => {
 
   const serviceInfo = getServiceTypeInfo();
 
-  // Set selected service type from booking data
+  // Set selected service type from booking data or URL params
   useEffect(() => {
-    if (localBookingData?.serviceType) {
-      setSelectedServiceType(localBookingData.serviceType as string);
+    console.log('CarDetailPage - localBookingData:', localBookingData);
+    console.log('CarDetailPage - URL search params:', window.location.search);
+    
+    const serviceType = localBookingData?.serviceType || new URLSearchParams(window.location.search).get('serviceType');
+    console.log('CarDetailPage - Extracted serviceType:', serviceType);
+    
+    if (serviceType) {
+      setSelectedServiceType(serviceType as string);
     }
   }, [localBookingData]);
 
@@ -114,10 +131,10 @@ const CarDetailPage: React.FC = () => {
 
   if (!car) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-background py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Car Not Found</h1>
-          <p className="text-gray-600 mb-8">The car you're looking for doesn't exist or has been removed.</p>
+          <h1 className="text-3xl font-bold text-white mb-6">Car Not Found</h1>
+          <p className="text-gray-300 mb-8">The car you're looking for doesn't exist or has been removed.</p>
           <Link to="/cars">
             <Button variant="primary">Browse Other Cars</Button>
           </Link>
@@ -201,7 +218,7 @@ const CarDetailPage: React.FC = () => {
                   <span>{car.type}</span>
                 </div>
                 <div className="flex items-center mr-6 text-gray-500">
-                  <DollarSign className="h-5 w-5 text-green-700 mr-2" />
+                  <Coins className="h-5 w-5 text-green-700 mr-2" />
                   {serviceInfo.price > 0 ? (
                     <>
                       <span className="font-bold text-green-700 text-lg">₵{serviceInfo.price.toLocaleString()}</span>
@@ -238,7 +255,7 @@ const CarDetailPage: React.FC = () => {
                           </span>
                         </div>
                         <div className="text-right">
-                          <span className="font-bold text-green-700">₵{service.price?.toLocaleString()}</span>
+                          <span className="font-bold text-green-700">₵{(service.displayPrice || service.totalPrice || service.basePrice || 0)?.toLocaleString()}</span>
                           <span className="text-sm text-gray-500 ml-1">
                             {service.serviceTypeId?.pricingType === 'per_hour' ? '/hour' :
                              service.serviceTypeId?.pricingType === 'per_trip' ? '/trip' :

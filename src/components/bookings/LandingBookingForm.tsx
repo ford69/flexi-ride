@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../ui/Button';
 import Loader from '../ui/Loader';
 import LocationInput from '../ui/LocationInput';
+import PhoneInput from '../ui/PhoneInput';
 import { Calendar, Clock, Users, MapPin } from 'lucide-react';
 import { serviceTypeService, ServiceType } from '../../services/serviceTypeService';
 
@@ -221,7 +222,7 @@ const LandingBookingForm: React.FC = () => {
             <button
               key={tab.value}
               type="button"
-              className={`flex-1 py-2 px-2 text-sm font-semibold focus:outline-none transition-colors border-b-2 ${activeTab === tab.value ? 'border-green-500 text-green-700' : 'border-transparent text-gray-500 hover:text-green-600'}`}
+              className={`flex-1 py-2 px-2 text-sm font-semibold focus:outline-none transition-colors border-b-2 ${activeTab === tab.value ? 'border-gray-500 text-gray-700' : 'border-transparent text-black hover:text-gray-600'}`}
               onClick={() => handleTab(tab.value)}
             >
               {tab.label}
@@ -238,12 +239,10 @@ const LandingBookingForm: React.FC = () => {
             onChange={handleChange}
             required
           />
-          <input
-            className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
-            placeholder="WhatsApp Number"
-            name="whatsapp"
+          <PhoneInput
             value={form.whatsapp as string}
-            onChange={handleChange}
+            onChange={(value) => setForm(prev => ({ ...prev, whatsapp: value }))}
+            placeholder="WhatsApp Number"
             required
           />
           <input
@@ -370,9 +369,9 @@ const LandingBookingForm: React.FC = () => {
               </label>
               <div className="flex items-center gap-2 mt-2">
                 <Users className="h-5 w-5 text-gray-400" />
-                <span className="text-sm">Passengers</span>
+                <span className="text-sm text-gray-500">Passengers</span>
                 <button type="button" className="ml-2 px-2 py-1 bg-gray-200 rounded" onClick={() => handlePassengers('dailyPassengers', -1)}>-</button>
-                <span className="px-2">{form.dailyPassengers}</span>
+                <span className="px-2 text-gray-500">{form.dailyPassengers}</span>
                 <button type="button" className="px-2 py-1 bg-gray-200 rounded" onClick={() => handlePassengers('dailyPassengers', 1)}>+</button>
               </div>
             </div>
@@ -426,13 +425,14 @@ const LandingBookingForm: React.FC = () => {
               </label>
               <div className="flex items-center gap-2 mt-2">
                 <Users className="h-5 w-5 text-gray-400" />
-                <span className="text-sm">Passengers</span>
+                <span className="text-sm text-gray-500">Passengers</span>
                 <button type="button" className="ml-2 px-2 py-1 bg-gray-200 rounded" onClick={() => handlePassengers('outTownPassengers', -1)}>-</button>
-                <span className="px-2">{form.outTownPassengers}</span>
+                <span className="px-2 text-gray-500">{form.outTownPassengers}</span>
                 <button type="button" className="px-2 py-1 bg-gray-200 rounded" onClick={() => handlePassengers('outTownPassengers', 1)}>+</button>
               </div>
             </div>
           )}
+          
           {/* Hourly Ride Tab */}
           {activeTab === 'hourly' && (
             <div className="space-y-4 animate-fade-in">
@@ -474,14 +474,14 @@ const LandingBookingForm: React.FC = () => {
               />
               <div className="flex items-center gap-2 mt-2">
                 <Users className="h-5 w-5 text-gray-400" />
-                <span className="text-sm">Passengers</span>
+                <span className="text-sm text-gray-500">Passengers</span>
                 <button type="button" className="ml-2 px-2 py-1 bg-gray-200 rounded" onClick={() => handlePassengers('hourlyPassengers', -1)}>-</button>
-                <span className="px-2">{form.hourlyPassengers}</span>
+                <span className="px-2 text-gray-500">{form.hourlyPassengers}</span>
                 <button type="button" className="px-2 py-1 bg-gray-200 rounded" onClick={() => handlePassengers('hourlyPassengers', 1)}>+</button>
               </div>
             </div>
           )}
-          <Button type="submit" variant="primary" className="w-full bg-gradient-to-r from-green-500 to-green-700 text-white font-bold rounded-lg py-3 mt-4 shadow-lg hover:from-green-600 hover:to-green-800 transition-all">Search</Button>
+          <Button type="submit" variant="primary" className="w-full bg-gradient-to-r from-black to-black text-white font-bold rounded-lg py-3 mt-4 shadow-lg hover:from-gray-600 hover:to-gray-800 transition-all">Search</Button>
         </form>
       </div>
     </>

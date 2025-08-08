@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, UserCircle, LogOut } from 'lucide-react';
 import Button from '../ui/Button';
@@ -70,27 +70,32 @@ const Navbar: React.FC = () => {
           </Button>
         </div>
       )}
-      <nav className="fixed top-0 left-0 w-full z-20 bg-black/40 backdrop-blur-md text-white shadow-none transition-colors">
+      <nav className="fixed top-0 left-0 w-full z-20 bg-white text-green-400 shadow-none transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            {/* Logo + Nav Links */}
+            {/* Logo */}
             <div className="flex items-center">
               <Link to="/" className="flex items-center" onClick={() => { if (window.location.pathname !== '/') { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}>
-                <img src="/images/flexi-logo.png" alt="FlexiRide Logo" className="h-10 w-15" />
+                <img src="/images/logo.png" alt="FlexiRide Logo" className="h-10 w-15" />
               </Link>
-              <div className="hidden md:ml-10 md:flex md:space-x-8">
-                <Link to="/" className="text-white hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors" onClick={e => {
+            </div>
+            
+            {/* Centered Navigation Links */}
+            <div className="hidden md:flex items-center justify-center flex-1">
+              <div className="flex space-x-8">
+                <Link to="/" className="text-black hover:text-gray-600 px-3 py-2 text-sm font-medium transition-colors" onClick={e => {
                   if (window.location.pathname !== '/') return;
                   e.preventDefault();
                   const el = document.getElementById('home');
                   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}>Home</Link>
-                <a href="#how-it-works" className="text-white hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors">How It Works</a>
-                <a href="#services" className="text-white hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors">Services</a>
-                <a href="#partner" className="text-white hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors">Partner With Us</a>
-                <a href="#contact" className="text-white hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors">Contact</a>
+                <a href="#how-it-works" className="text-black hover:text-gray-600 px-3 py-2 text-sm font-medium transition-colors">How It Works</a>
+                <a href="#services" className="text-black hover:text-gray-600 px-3 py-2 text-sm font-medium transition-colors">Services</a>
+                <a href="#partner" className="text-black hover:text-gray-600 px-3 py-2 text-sm font-medium transition-colors">Partner With Us</a>
+                <a href="#contact" className="text-black hover:text-gray-600 px-3 py-2 text-sm font-medium transition-colors">Contact</a>
               </div>
             </div>
+            
             {/* Desktop User Actions */}
             <div className="hidden md:flex items-center space-x-4">
               {isAuthenticated ? (
@@ -101,7 +106,7 @@ const Navbar: React.FC = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => navigate('/login')}
-                    className="text-white border-green-400 hover:bg-green-900/20"
+                    className="text-black border-gray-400 hover:bg-gray-900/20"
                   >
                     Login
                   </Button>
@@ -109,7 +114,7 @@ const Navbar: React.FC = () => {
                     variant="primary"
                     size="sm"
                     onClick={() => navigate('/register')}
-                    className="bg-green-500 text-white hover:bg-green-600"
+                    className="bg-black text-white hover:bg-gray-600"
                   >
                     Sign Up
                   </Button>
@@ -120,7 +125,7 @@ const Navbar: React.FC = () => {
             <div className="flex items-center md:hidden">
               <button
                 type="button"
-                className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-green-400 hover:bg-green-900/20 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"
+                className="inline-flex items-center justify-center p-2 rounded-md text-black hover:text-gray-400 hover:bg-gray-900/20 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-800"
                 aria-controls="mobile-menu"
                 aria-expanded={isMobileMenuOpen}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -134,16 +139,16 @@ const Navbar: React.FC = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-black/80 backdrop-blur-md" id="mobile-menu">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <Link to="/" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors" onClick={e => {
+              <Link to="/" className="block px-3 py-2 text-base font-medium text-white hover:text-[#277f75] hover:bg-green-900/20 rounded-md transition-colors" onClick={e => {
                 if (window.location.pathname !== '/') return;
                 e.preventDefault();
                 const el = document.getElementById('home');
                 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}>Home</Link>
-              <a href="#how-it-works" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors">How It Works</a>
-              <a href="#services" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors">Services</a>
-              <a href="#partner" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors">Partner With Us</a>
-              <a href="#contact" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors">Contact</a>
+              <a href="#how-it-works" className="block px-3 py-2 text-base font-medium text-white hover:text-[#277f75] hover:bg-gray-900/20 rounded-md transition-colors">How It Works</a>
+              <a href="#services" className="block px-3 py-2 text-base font-medium text-white hover:text-[#277f75] hover:bg-gray-900/20 rounded-md transition-colors">Services</a>
+              <a href="#partner" className="block px-3 py-2 text-base font-medium text-white hover:text-[#277f75] hover:bg-gray-900/20 rounded-md transition-colors">Partner With Us</a>
+              <a href="#contact" className="block px-3 py-2 text-base font-medium text-white hover:text-[#277f75] hover:bg-gray-900/20 rounded-md transition-colors">Contact</a>
             </div>
             <div className="pt-4 pb-3 border-t border-green-900/40">
               {isAuthenticated ? (
@@ -163,11 +168,11 @@ const Navbar: React.FC = () => {
                       <div className="text-sm font-medium text-gray-300">{user?.email}</div>
                     </div>
                   </div>
-                  <Link to={getDashboardLink()} className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md">Dashboard</Link>
-                  <Link to="/profile" className="block px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md">Profile</Link>
+                  <Link to={getDashboardLink()} className="block px-3 py-2 text-base font-medium text-white hover:text-[#277f75] hover:bg-green-900/20 rounded-md">Dashboard</Link>
+                  <Link to="/profile" className="block px-3 py-2 text-base font-medium text-white hover:text-[#277f75] hover:bg-green-900/20 rounded-md">Profile</Link>
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md"
+                    className="flex w-full items-center px-3 py-2 text-base font-medium text-white hover:text-[#277f75] hover:bg-green-900/20 rounded-md"
                   >
                     <LogOut className="h-5 w-5 mr-2" />
                     Sign out
@@ -177,13 +182,13 @@ const Navbar: React.FC = () => {
                 <div className="px-2 space-y-1">
                   <button
                     onClick={() => navigate('/login')}
-                    className="block w-full text-left px-3 py-2 text-base font-medium text-white hover:text-green-400 hover:bg-green-900/20 rounded-md"
+                    className="block w-full text-left px-3 py-2 text-base font-medium text-white hover:text-[#277f75] hover:bg-green-900/20 rounded-md"
                   >
                     Login
                   </button>
                   <button
                     onClick={() => navigate('/register')}
-                    className="block w-full text-left px-3 py-2 text-base font-medium text-white bg-green-500 hover:bg-green-600 rounded-md"
+                    className="block w-full text-left px-3 py-2 text-base font-medium text-white bg-[#277f75] hover:bg-[#4fd1c2] rounded-md"
                   >
                     Sign Up
                   </button>

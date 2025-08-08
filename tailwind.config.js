@@ -54,7 +54,14 @@ export default {
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
       },
+      textShadow: {
+        sm: '0 1px 2px rgba(0, 0, 0, 0.1)',
+        DEFAULT: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        lg: '0 8px 16px rgba(0, 0, 0, 0.1)',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss-textshadow')
+  ],
 };

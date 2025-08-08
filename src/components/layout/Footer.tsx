@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
             </Link>
             </div>
             <p className="text-sm">
-              Premium car rental service that provides exceptional vehicles for your journey.
+            Your premium ride-booking platform connecting you to trusted chauffeurs and top-tier transport providers across Ghana. Whether you're local or just visiting,ride with confidence.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-primary">
@@ -55,17 +55,21 @@ const Footer: React.FC = () => {
             <h3 className="text-lg font-semibold text-white mb-4">Our Services</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="#" className="text-gray-400 hover:text-primary">Car Rental</Link>
+                <Link to="#" className="text-gray-400 hover:text-primary">Airport Pickups & Drop-offs</Link>
               </li>
               <li>
-                <Link to="#" className="text-gray-400 hover:text-primary">List Your Car</Link>
+                <Link to="#" className="text-gray-400 hover:text-primary">Hourly Chauffeur Service</Link>
               </li>
               <li>
-                <Link to="#" className="text-gray-400 hover:text-primary">Insurance</Link>
+                <Link to="#" className="text-gray-400 hover:text-primary">City-to-City Rides</Link>
               </li>
               <li>
-                <Link to="#" className="text-gray-400 hover:text-primary">Roadside Assistance</Link>
+                <Link to="#" className="text-gray-400 hover:text-primary">Out-of-Town Trips</Link>
               </li>
+              <li>
+                <Link to="#" className="text-gray-400 hover:text-primary">Daily & Multi-Day Rentals</Link>
+              </li>
+
             </ul>
           </div>
 
@@ -75,11 +79,11 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                <span>123 Street Name, City, Country</span>
+                <span>Accra, Ghana</span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 text-primary mr-2" />
-                <span>+1 (555) 123-4567</span>
+                <span>+233 (0) 54 278 2995</span>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 text-primary mr-2" />

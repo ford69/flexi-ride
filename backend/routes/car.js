@@ -36,6 +36,14 @@ router.post("/", protect, upload.array("images", 10), async (req, res) => {
         }
         return st;
       });
+
+      // Apply service charge (25%) to each service type
+      serviceTypes = serviceTypes.map(st => ({
+        ...st,
+        basePrice: st.price || st.basePrice || 0,
+        totalPrice: Math.round((st.price || st.basePrice || 0) * 1.25), // Add 25% service charge
+        isActive: st.isActive !== false
+      }));
     }
 
     const carData = {
@@ -58,11 +66,44 @@ router.post("/", protect, upload.array("images", 10), async (req, res) => {
   }
 });
 
-// ✅ Get cars for the authenticated owner
+// ✅ Get cars for the authenticated owner (shows base prices only)
 router.get("/my-cars", protect, async (req, res) => {
   try {
-    const cars = await Car.find({ ownerId: req.user._id });
-    res.json(cars);
+    const cars = await Car.find({ ownerId: req.user._id }).populate({
+      path: 'serviceTypes.serviceTypeId',
+      model: 'ServiceType',
+      match: { isActive: true }
+    });
+    
+    // For owners, show base prices (without service charge)
+    const carsWithBasePrices = cars.map(car => {
+      const carObj = car.toObject();
+      return {
+        ...carObj,
+        serviceTypes: carObj.serviceTypes.map(st => ({
+          ...st,
+          serviceTypeId: st.serviceTypeId ? {
+            _id: st.serviceTypeId._id,
+            name: st.serviceTypeId.name,
+            code: st.serviceTypeId.code,
+            description: st.serviceTypeId.description,
+            isActive: st.serviceTypeId.isActive,
+            defaultPrice: st.serviceTypeId.defaultPrice,
+            pricingType: st.serviceTypeId.pricingType,
+            icon: st.serviceTypeId.icon,
+            sortOrder: st.serviceTypeId.sortOrder
+          } : null,
+          displayPrice: st.basePrice, // Show base price to owners
+          priceBreakdown: {
+            basePrice: st.basePrice,
+            serviceCharge: st.totalPrice - st.basePrice,
+            totalPrice: st.totalPrice
+          }
+        }))
+      };
+    });
+    
+    res.json(carsWithBasePrices);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -71,6 +112,7 @@ router.get("/my-cars", protect, async (req, res) => {
 // Public: Get cars with optional filtering by service type
 router.get("/", async (req, res) => {
   const { ownerId, serviceType } = req.query;
+  
   try {
     let filter = ownerId ? { ownerId } : {};
     
@@ -78,6 +120,7 @@ router.get("/", async (req, res) => {
     if (serviceType) {
       // Find service type by code
       const serviceTypeDoc = await ServiceType.findOne({ code: serviceType, isActive: true });
+      
       if (serviceTypeDoc) {
         filter['serviceTypes.serviceTypeId'] = serviceTypeDoc._id;
         filter['serviceTypes.isActive'] = true;
@@ -98,7 +141,35 @@ router.get("/", async (req, res) => {
       return true;
     });
     
-    res.json(filteredCars);
+    // For customers, show total prices (including service charge)
+    const carsWithTotalPrices = filteredCars.map(car => {
+      const carObj = car.toObject();
+      return {
+        ...carObj,
+        serviceTypes: carObj.serviceTypes.map(st => ({
+          ...st,
+          serviceTypeId: st.serviceTypeId ? {
+            _id: st.serviceTypeId._id,
+            name: st.serviceTypeId.name,
+            code: st.serviceTypeId.code,
+            description: st.serviceTypeId.description,
+            isActive: st.serviceTypeId.isActive,
+            defaultPrice: st.serviceTypeId.defaultPrice,
+            pricingType: st.serviceTypeId.pricingType,
+            icon: st.serviceTypeId.icon,
+            sortOrder: st.serviceTypeId.sortOrder
+          } : null,
+          displayPrice: st.totalPrice, // Show total price to customers
+          priceBreakdown: {
+            basePrice: st.basePrice,
+            serviceCharge: st.totalPrice - st.basePrice,
+            totalPrice: st.totalPrice
+          }
+        }))
+      };
+    });
+    
+    res.json(carsWithTotalPrices);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -159,6 +230,14 @@ router.put("/:id", protect, async (req, res) => {
         }
         return st;
       });
+
+      // Apply service charge (25%) to each service type
+      updateData.serviceTypes = updateData.serviceTypes.map(st => ({
+        ...st,
+        basePrice: st.price || st.basePrice || 0,
+        totalPrice: Math.round((st.price || st.basePrice || 0) * 1.25), // Add 25% service charge
+        isActive: st.isActive !== false
+      }));
     }
 
     const updatedCar = await Car.findByIdAndUpdate(req.params.id, updateData, {
@@ -181,7 +260,38 @@ router.get("/:id", async (req, res) => {
     });
     
     if (!car) return res.status(404).json({ message: "Car not found" });
-    res.json(car);
+    
+    // Check if the request is from the owner
+    const isOwner = req.user && req.user._id.toString() === car.ownerId.toString();
+    
+    // For customers, show total prices (including service charge)
+    // For owners, show base prices (without service charge)
+    const carObj = car.toObject();
+    const carWithPricing = {
+      ...carObj,
+      serviceTypes: carObj.serviceTypes.map(st => ({
+        ...st,
+        serviceTypeId: st.serviceTypeId ? {
+          _id: st.serviceTypeId._id,
+          name: st.serviceTypeId.name,
+          code: st.serviceTypeId.code,
+          description: st.serviceTypeId.description,
+          isActive: st.serviceTypeId.isActive,
+          defaultPrice: st.serviceTypeId.defaultPrice,
+          pricingType: st.serviceTypeId.pricingType,
+          icon: st.serviceTypeId.icon,
+          sortOrder: st.serviceTypeId.sortOrder
+        } : null,
+        displayPrice: isOwner ? st.basePrice : st.totalPrice,
+        priceBreakdown: {
+          basePrice: st.basePrice,
+          serviceCharge: st.totalPrice - st.basePrice,
+          totalPrice: st.totalPrice
+        }
+      }))
+    };
+    
+    res.json(carWithPricing);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

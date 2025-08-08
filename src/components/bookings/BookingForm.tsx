@@ -95,54 +95,58 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
   };
 
   const getServiceTypePrice = () => {
-    if (!serviceType || !car.serviceTypes || car.serviceTypes.length === 0) return 0;
+    if (!serviceType || !car.serviceTypes || car.serviceTypes.length === 0) {
+      return 0;
+    }
     
     const selectedService = car.serviceTypes.find(st => 
       st.serviceTypeId && st.serviceTypeId.code === serviceType
     );
     
-    return selectedService?.price || 0;
+    return selectedService?.displayPrice || selectedService?.totalPrice || selectedService?.basePrice || 0;
   };
 
   const calculateTotalPrice = () => {
     const servicePrice = getServiceTypePrice();
     if (servicePrice === 0) return 0;
     
-    let basePrice = 0;
+    let totalPrice = 0;
     
     if (serviceType === 'daily' || serviceType === 'out-of-town') {
       const days = calculateDays();
-      basePrice = days * servicePrice;
+      totalPrice = days * servicePrice;
     } else if (serviceType === 'hourly') {
       const hours = parseInt(fields.duration) || 1;
-      basePrice = hours * servicePrice;
+      totalPrice = hours * servicePrice;
     } else if (serviceType === 'airport') {
-      basePrice = servicePrice; // Per trip pricing
+      totalPrice = servicePrice; // Per trip pricing
     }
     
-    const serviceCharge = basePrice * 0.25; // 25% service charge
-    return basePrice + serviceCharge;
+    return totalPrice; // Service charge is already included in the price
   };
 
   const calculateBasePrice = () => {
     const servicePrice = getServiceTypePrice();
     if (servicePrice === 0) return 0;
     
+    // Extract base price from total price (remove service charge)
+    const basePricePerUnit = Math.round(servicePrice / 1.25);
+    
     if (serviceType === 'daily' || serviceType === 'out-of-town') {
       const days = calculateDays();
-      return days * servicePrice;
+      return days * basePricePerUnit;
     } else if (serviceType === 'hourly') {
       const hours = parseInt(fields.duration) || 1;
-      return hours * servicePrice;
+      return hours * basePricePerUnit;
     } else if (serviceType === 'airport') {
-      return servicePrice; // Per trip pricing
+      return basePricePerUnit; // Per trip pricing
     }
     
     return 0;
   };
 
   const calculateServiceCharge = () => {
-    return calculateBasePrice() * 0.25;
+    return calculateTotalPrice() - calculateBasePrice();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -415,8 +419,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
 
   return (
     <Card className="bg-white border-none shadow-2xl rounded-2xl">
-      <CardHeader className="bg-white border-b border-gray-100 pb-4">
-        <h3 className="text-xl font-bold text-black">Book this car</h3>
+      <CardHeader className="bg-[#277f75] border-b border-gray-100 pb-4">
+        <h3 className="text-xl font-bold text-white">Book this car</h3>
       </CardHeader>
       {!user?.isVerified && isAuthenticated && (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 px-4 py-3 rounded-md text-sm m-4">

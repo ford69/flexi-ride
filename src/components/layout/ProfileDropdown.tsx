@@ -58,14 +58,14 @@ const ProfileDropdown: React.FC = () => {
               src={`http://localhost:5001${user.avatar}`}
               alt={user.name}
               className="h-8 w-8 rounded-full object-cover border-2 border-gray-600"
-            />
+            />      
           ) : (
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium border-2 border-gray-600">
+            <div className="h-8 w-8 rounded-full bg-black flex items-center justify-center text-white text-sm font-medium border-2 border-gray-600">
               {getInitials(user?.name || 'U')}
             </div>
           )}
         </div>
-        <span className="hidden md:block text-sm font-medium">{user?.name}</span>
+        <span className="hidden md:block text-black text-sm font-medium">{user?.name}</span>
         <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
@@ -78,7 +78,7 @@ const ProfileDropdown: React.FC = () => {
           
           <Link
             to="/profile"
-            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-primary hover:text-white transition-colors duration-200"
+            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-black hover:text-white transition-colors duration-200"
             onClick={() => setIsOpen(false)}
           >
             <User className="h-4 w-4 mr-3" />
@@ -87,7 +87,7 @@ const ProfileDropdown: React.FC = () => {
           
           <Link
             to={getDashboardLink()}
-            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-primary hover:text-white transition-colors duration-200"
+            className="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-black hover:text-white transition-colors duration-200"
             onClick={() => setIsOpen(false)}
           >
             <Settings className="h-4 w-4 mr-3" />
@@ -96,7 +96,7 @@ const ProfileDropdown: React.FC = () => {
           
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-2 text-sm text-gray-600 hover:bg-primary hover:text-white transition-colors duration-200"
+            className="flex items-center w-full px-4 py-2 text-sm text-gray-600 hover:bg-black hover:text-white transition-colors duration-200"
           >
             <LogOut className="h-4 w-4 mr-3" />
             Logout

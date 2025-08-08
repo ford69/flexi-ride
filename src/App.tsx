@@ -68,7 +68,7 @@ function App() {
     <HelmetProvider>
       <AlertProvider>
         <AuthProvider>
-          <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900">
+          <div className="flex flex-col min-h-screen bg-background text-white">
             <AlertContainer />
             <Navbar />
             <main className="flex-grow">

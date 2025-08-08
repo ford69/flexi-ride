@@ -69,7 +69,9 @@ const CarListingPage: React.FC = () => {
     if (data) {
       setBookingData(JSON.parse(data));
     }
+  }, []);
 
+  useEffect(() => {
     const fetchCars = async () => {
       setLoading(true);
       try {
@@ -94,7 +96,9 @@ const CarListingPage: React.FC = () => {
     };
 
     fetchCars();
-  }, []);
+  }, [bookingData, location.search]);
+
+
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);

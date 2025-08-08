@@ -6,7 +6,11 @@ const carServiceTypeSchema = new mongoose.Schema({
     ref: 'ServiceType',
     required: true
   },
-  price: {
+  basePrice: {
+    type: Number,
+    required: true
+  },
+  totalPrice: {
     type: Number,
     required: true
   },

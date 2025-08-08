@@ -403,15 +403,15 @@ const AddCarPage: React.FC = () => {
                                 onClick={() => handleServiceTypeToggle(serviceType)}
                                 className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
                                   isSelected 
-                                    ? 'bg-green-500 border-green-500' 
+                                    ? 'bg-[#277f75] border-[#277f75]' 
                                     : 'border-gray-400'
                                 }`}
                               >
                                 {isSelected && <Check className="h-3 w-3 text-white" />}
                               </button>
                               <div>
-                                <h3 className="font-medium text-white">{serviceType.name}</h3>
-                                <p className="text-sm text-gray-300">{serviceType.description}</p>
+                                <h3 className="font-medium text-gray-500">{serviceType.name}</h3>
+                                <p className="text-sm text-gray-400">{serviceType.description}</p>
                               </div>
                             </div>
                           </div>
@@ -445,8 +445,7 @@ const AddCarPage: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4 text-gray-600">
-                      <p>Your car will be reviewed by our team before it's listed publicly.</p>
-                      <p>Approval usually takes 1-2 business days.</p>
+                      <p>Kindly Review your listing before submitting.</p>
                       <p>Make sure all information is accurate and photos clearly show the car's condition.</p>
                     </div>
                   </CardContent>
@@ -458,7 +457,7 @@ const AddCarPage: React.FC = () => {
                       isLoading={isSubmitting}
                       disabled={images.length === 0}
                     >
-                      Submit for Review
+                      Submit
                     </Button>
                   </CardFooter>
                 </Card>
@@ -467,7 +466,7 @@ const AddCarPage: React.FC = () => {
                   <CardContent>
                     <div className="space-y-4 text-gray-600 text-sm">
                       <div>
-                        <h3 className="text-gray-700 font-medium mb-1">Tips for faster approval:</h3>
+                        <h3 className="text-gray-700 font-medium mb-1">Tips better ratings</h3>
                         <ul className="list-disc pl-5 space-y-1">
                           <li>Use clear, well-lit photos</li>
                           <li>Include interior and exterior shots</li>

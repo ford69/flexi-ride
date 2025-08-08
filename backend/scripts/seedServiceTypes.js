@@ -6,7 +6,7 @@ const serviceTypes = [
   {
     name: 'Airport Transfer',
     code: 'airport',
-    description: 'Transportation to and from the airport',
+    description: 'Airport Transfer',
     defaultPrice: 150,
     pricingType: 'per_trip',
     icon: 'plane',
@@ -15,7 +15,7 @@ const serviceTypes = [
   {
     name: 'Daily Rental',
     code: 'daily',
-    description: 'Car rental for daily use',
+    description: 'Daily Rental',
     defaultPrice: 200,
     pricingType: 'per_day',
     icon: 'calendar',
@@ -24,7 +24,7 @@ const serviceTypes = [
   {
     name: 'Out of Town',
     code: 'out-of-town',
-    description: 'Long distance trips outside the city',
+    description: 'Out of Town',
     defaultPrice: 300,
     pricingType: 'per_day',
     icon: 'map-pin',
@@ -33,7 +33,7 @@ const serviceTypes = [
   {
     name: 'Hourly Ride',
     code: 'hourly',
-    description: 'Short duration rides within the city',
+    description: 'Hourly Ride',
     defaultPrice: 50,
     pricingType: 'per_hour',
     icon: 'clock',

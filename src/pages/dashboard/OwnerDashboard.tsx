@@ -213,28 +213,28 @@ const OwnerDashboard: React.FC = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <Button variant="primary" onClick={() => window.location.reload()}>
-            Try Again
-          </Button>
+      if (isLoading) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
+
+      if (error) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button variant="primary" onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </div>
+        </div>
+      );
+    }
 
   return (
 
@@ -245,8 +245,8 @@ const OwnerDashboard: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-900">Owner Dashboard</h1>
             <p className="text-gray-600 mt-1">Manage your listings and bookings</p>
           </div>
-          <Link to="/owner/add-car">
-            <Button variant="primary" className="mt-4 md:mt-0 bg-gradient-to-r from-green-500 to-green-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:from-green-600 hover:to-green-800 transition" icon={<PlusCircle className="h-5 w-5 mr-1" />}>
+          <Link to="/owner/add-car"> 
+            <Button variant="primary" className="mt-4 md:mt-0 bg-[#277f75] text-white font-bold px-6 py-2 rounded-lg shadow hover:from-green-600 hover:to-green-800 transition" icon={<PlusCircle className="h-5 w-5 mr-1" />}>
               Add New Car
             </Button>
           </Link>
@@ -255,8 +255,8 @@ const OwnerDashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="bg-white rounded-xl shadow p-6">
             <CardContent className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-full mr-4">
-                <CarIcon className="h-8 w-8 text-green-600" />
+              <div className="p-3 bg-[#277f75] rounded-full mr-4">
+                <CarIcon className="h-8 w-8 text-white" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">{cars.length}</h3>
@@ -267,8 +267,8 @@ const OwnerDashboard: React.FC = () => {
 
           <Card className="bg-white rounded-xl shadow p-6">
             <CardContent className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-full mr-4">
-                <Coins className="h-8 w-8 text-green-600" />
+              <div className="p-3 bg-[#277f75] rounded-full mr-4">
+                <Coins className="h-8 w-8 text-white" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">¢{totalEarnings}</h3>
@@ -279,8 +279,8 @@ const OwnerDashboard: React.FC = () => {
 
           <Card className="bg-white rounded-xl shadow p-6">
             <CardContent className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-full mr-4">
-                <Users className="h-8 w-8 text-green-600" />
+              <div className="p-3 bg-[#277f75] rounded-full mr-4">
+                <Users className="h-8 w-8 text-white" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">{pendingBookings + confirmedBookings}</h3>
@@ -291,8 +291,8 @@ const OwnerDashboard: React.FC = () => {
 
           <Card className="bg-white rounded-xl shadow p-6">
             <CardContent className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-full mr-4">
-                <DollarSign className="h-8 w-8 text-blue-600" />
+              <div className="p-3 bg-[#277f75] rounded-full mr-4">
+                <CheckCircle className="h-8 w-8 text-white" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">{totalServiceTypes}</h3>
@@ -436,12 +436,12 @@ const OwnerDashboard: React.FC = () => {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-700">
-                        <th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Customer</th>
-                        <th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Car</th>
-                        <th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Dates</th>
-                        <th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Amount</th>
-                        <th className="px-4 py-3 text-left text-xs text-gray-400 uppercase">Status</th>
-                        <th className="px-4 py-3 text-right text-xs text-gray-400 uppercase">Actions</th>
+                        <th className="px-4 py-3 text-left text-xs text-black uppercase">Customer</th>
+                        <th className="px-4 py-3 text-left text-xs text-black uppercase">Car</th>
+                        <th className="px-4 py-3 text-left text-xs text-black uppercase">Dates</th>
+                        <th className="px-4 py-3 text-left text-xs text-black uppercase">Amount</th>
+                        <th className="px-4 py-3 text-left text-xs text-black uppercase">Status</th>
+                        <th className="px-4 py-3 text-right text-xs text-black uppercase">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -466,8 +466,8 @@ const OwnerDashboard: React.FC = () => {
                                   </div>
                                 )}
                                 <div>
-                                  <div className="text-white">{userName}</div>
-                                  <div className="text-xs text-gray-400">{userEmail}</div>
+                                  <div className="text-gray-400">{userName}</div>
+                                  <div className="text-xs text-gray-300">{userEmail}</div>
                                 </div>
                               </div>
                             </td>
@@ -478,12 +478,12 @@ const OwnerDashboard: React.FC = () => {
                                   alt="" 
                                   className="h-8 w-8 rounded-md object-cover mr-2" 
                                 />
-                                <div className="text-white">
+                                <div className="text-gray-400">
                                   {car ? `${car.make} ${car.model}` : 'Unknown Car'}
                                 </div>
                               </div>
                             </td>
-                            <td className="px-4 py-4 text-gray-300">
+                            <td className="px-4 py-4 text-gray-400">
                               <div className="flex items-center">
                                 <Calendar className="h-4 w-4 text-primary mr-2" />
                                 <span>
@@ -491,7 +491,7 @@ const OwnerDashboard: React.FC = () => {
                                 </span>
                               </div>
                             </td>
-                            <td className="px-4 py-4 text-white">¢{booking.totalPrice}</td>
+                            <td className="px-4 py-4 text-gray-400">¢{booking.totalPrice}</td>
                             <td className="px-4 py-4">
                               <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(booking.status)}`}>
                                 {getStatusIcon(booking.status)}
