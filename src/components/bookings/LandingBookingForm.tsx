@@ -363,10 +363,10 @@ const LandingBookingForm: React.FC = () => {
                 onSelect={(details) => setForm(prev => ({ ...prev, dailyPickup: details.address }))}
                 placeholder="Pickup Location"
               />
-              <label className="flex items-center text-sm font-medium text-gray-700">
+              {/* <label className="flex items-center text-sm font-medium text-gray-700">
                 <input type="checkbox" name="withDriver" checked={!!form.withDriver} onChange={handleChange} className="mr-2" />
                 With Driver
-              </label>
+              </label> */}
               <div className="flex items-center gap-2 mt-2">
                 <Users className="h-5 w-5 text-gray-400" />
                 <span className="text-sm text-gray-500">Passengers</span>

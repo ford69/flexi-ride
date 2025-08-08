@@ -46,23 +46,64 @@ router.post('/register', async (req, res) => {
     // Create and save user (password will be hashed by model)
     const user = await User.create({ name, email, password, role, verificationToken, verificationTokenExpires });
 
-    // Send verification email via SendGrid (if configured)
-    if (process.env.SENDGRID_API_KEY) {
+    // Send verification email via SendGrid
+    if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY !== 'your_sendgrid_api_key') {
       try {
+        console.log('📧 Attempting to send verification email to:', user.email);
+        
         const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
         const msg = {
           to: user.email,
           from: process.env.SENDGRID_FROM || 'info@flexiride.co',
           subject: 'Verify your FlexiRide account',
-          html: `<h2>Welcome to FlexiRide!</h2><p>Please verify your email by clicking the link below:</p><a href="${verifyUrl}">${verifyUrl}</a>`
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #277f75, #4fd1c2); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="margin: 0; font-size: 28px;">Welcome to FlexiRide!</h1>
+                <p style="margin: 10px 0 0 0; opacity: 0.9;">Your premium car rental experience starts here</p>
+              </div>
+              <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h2 style="color: #277f75; margin-bottom: 20px;">Verify Your Email Address</h2>
+                <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
+                  Hi ${user.name},<br><br>
+                  Thank you for creating your FlexiRide account! To complete your registration and start booking premium vehicles, please verify your email address by clicking the button below.
+                </p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${verifyUrl}" style="background: linear-gradient(135deg, #277f75, #4fd1c2); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; box-shadow: 0 4px 15px rgba(39, 127, 117, 0.3);">
+                    Verify Email Address
+                  </a>
+                </div>
+                <p style="color: #999; font-size: 14px; margin-top: 25px; text-align: center;">
+                  If the button doesn't work, copy and paste this link into your browser:<br>
+                  <a href="${verifyUrl}" style="color: #277f75; word-break: break-all;">${verifyUrl}</a>
+                </p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                <p style="color: #999; font-size: 12px; text-align: center;">
+                  This link will expire in 24 hours for security reasons.<br>
+                  If you didn't create this account, you can safely ignore this email.
+                </p>
+              </div>
+            </div>
+          `
         };
-        await sgMail.send(msg);
+        
+        const response = await sgMail.send(msg);
+        console.log('✅ Verification email sent successfully to:', user.email);
+        console.log('📧 SendGrid Response:', response[0]?.statusCode);
+        
       } catch (emailError) {
-        console.error('Email sending failed:', emailError);
+        console.error('❌ Email sending failed:', emailError);
+        console.error('📧 SendGrid Error Details:', {
+          message: emailError.message,
+          code: emailError.code,
+          response: emailError.response?.body
+        });
         // Continue with registration even if email fails
+        // Don't throw error - just log it and continue
       }
     } else {
-      console.log('SendGrid not configured - skipping email verification');
+      console.log('⚠️ SendGrid not configured or invalid - skipping email verification');
+      console.log('🔧 To enable email verification, set SENDGRID_API_KEY and SENDGRID_FROM environment variables');
     }
 
     res.status(201).json({
@@ -71,7 +112,7 @@ router.post('/register', async (req, res) => {
       email: user.email,
       role: user.role,
       isVerified: user.isVerified,
-      message: process.env.SENDGRID_API_KEY 
+      message: (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY !== 'your_sendgrid_api_key')
         ? 'Registration successful. Please check your email to verify your account.'
         : 'Registration successful. Email verification is not configured.'
     });
