@@ -86,6 +86,20 @@ const CarFilter: React.FC<CarFilterProps> = ({ onFilterChange }) => {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-gray-200 mb-1">Availability</label>
+              <select
+                name="availability"
+                value={filters.availability || ''}
+                onChange={handleInputChange}
+                className="w-full p-2 bg-background-light border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="">All Cars</option>
+                <option value="available">Available Only</option>
+                <option value="unavailable">Unavailable Only</option>
+              </select>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-gray-200 mb-1">Min Price (¢500 per day)</label>
               <Input
                 type="number"

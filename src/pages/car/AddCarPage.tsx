@@ -9,6 +9,8 @@ import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import Card, { CardContent, CardHeader, CardFooter } from '../../components/ui/Card';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAlert } from '../../contexts/AlertContext';
+import { alertMessages } from '../../utils/alerts';
 import axios from 'axios';
 import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
 import { serviceTypeService, ServiceType } from '../../services/serviceTypeService';
@@ -43,6 +45,7 @@ const carTypes = [
 
 const AddCarPage: React.FC = () => {
   const { user } = useAuth();
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<File[]>([]);
@@ -181,11 +184,16 @@ const AddCarPage: React.FC = () => {
         },
       });
 
-      alert('✅ Car added successfully!');
+      // ✅ Show success alert and navigate
+      showAlert({ type: 'success', ...alertMessages.carAdded });
       navigate('/owner/dashboard');
     } catch (error) {
       console.error('❌ Failed to add car:', error);
-      alert('Error submitting car. Please try again.');
+      showAlert({ 
+        type: 'error', 
+        title: 'Car Addition Failed',
+        message: 'Failed to add car. Please try again.'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -278,7 +286,7 @@ const AddCarPage: React.FC = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
-                      label="Location"
+                      label="Car Location"
                       error={errors.location?.message}
                       {...register('location', { required: 'Location is required' })}
                       placeholder="e.g. Cantoments, Osu"
@@ -466,17 +474,17 @@ const AddCarPage: React.FC = () => {
                   <CardContent>
                     <div className="space-y-4 text-gray-600 text-sm">
                       <div>
-                        <h3 className="text-gray-700 font-medium mb-1">Tips better ratings</h3>
+                        <h3 className="text-gray-700 font-medium mb-1">Tips for Getting Better Ratings</h3>
                         <ul className="list-disc pl-5 space-y-1">
                           <li>Use clear, well-lit photos</li>
-                          <li>Include interior and exterior shots</li>
+                          <li>Include multiple angles, interior and exterior shots</li>
                           <li>Be accurate about the car's condition</li>
-                          <li>Add detailed description and features</li>
+                          <li>Provide a detailed description, including all features and special highlights</li>
                         </ul>
                       </div>
                       <div>
                         <h3 className="text-white font-medium mb-1">Need help?</h3>
-                        <p>Contact our support team for assistance with listing your car.</p>
+                        <p>For help with listing your car, please contact our support team <a href="mailto:support@flexiride.co" className="text-blue-500">support@flexiride.co</a> </p>
                       </div>
                     </div>
                   </CardContent>

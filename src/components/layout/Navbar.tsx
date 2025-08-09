@@ -54,7 +54,7 @@ const Navbar: React.FC = () => {
   return (
     <>
       {isAuthenticated && user && !user.isVerified && (
-        <div className="bg-yellow-900/90 text-yellow-200 text-sm py-2 px-4 flex items-center justify-between">
+        <div className="fixed top-0 left-0 w-full z-30 bg-yellow-900/90 text-yellow-200 text-sm py-2 px-4 flex items-center justify-between">
           <span>
             Your email is not verified. Please check your inbox to verify your account.
             {resentMsg && <span className="ml-2 text-green-300">{resentMsg}</span>}
@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
           </Button>
         </div>
       )}
-      <nav className="fixed top-0 left-0 w-full z-20 bg-white text-green-400 shadow-none transition-colors">
+      <nav className={`fixed left-0 w-full z-20 bg-white text-green-400 shadow-none transition-colors ${isAuthenticated && user && !user.isVerified ? 'top-10' : 'top-0'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Logo */}

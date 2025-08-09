@@ -21,6 +21,14 @@ export const createAlert = (
 // Common alert patterns
 export const alertMessages = {
   // Success messages
+  registrationSuccess: {
+    title: 'Registration Successful!',
+    message: 'Your account has been created successfully. Please check your email to verify your account.',
+  },
+  loginSuccess: {
+    title: 'Login Successful!',
+    message: 'Welcome back! You have been logged in successfully.',
+  },
   bookingCreated: {
     title: 'Booking Created',
     message: 'Your booking has been created successfully. Please complete payment.',
@@ -42,8 +50,8 @@ export const alertMessages = {
     message: 'Your profile has been updated successfully.',
   },
   carAdded: {
-    title: 'Car Added',
-    message: 'Your car has been added successfully.',
+    title: 'Car Added Successfully!',
+    message: 'Your car has been added to the platform successfully.',
   },
   carUpdated: {
     title: 'Car Updated',

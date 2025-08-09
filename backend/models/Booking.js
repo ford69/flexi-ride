@@ -54,6 +54,8 @@ const bookingSchema = new mongoose.Schema({
   flightNumber: { type: String },
   terminal: { type: String },
   return: { type: Boolean },
+  airportReturnDate: { type: String },
+  airportReturnTime: { type: String },
   airportPassengers: { type: Number },
   from: { type: String },
   to: { type: String },

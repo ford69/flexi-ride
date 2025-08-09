@@ -73,6 +73,7 @@ export interface CarFilter {
   location?: string;
   minPrice?: number;
   maxPrice?: number;
+  availability?: string;
   dates?: {
     start: string;
     end: string;

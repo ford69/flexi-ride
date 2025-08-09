@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { User } from '../types';
 import { buildApiUrl, API_ENDPOINTS } from '../config/api';
+import { checkTokenExpiration, clearAuthData, getStoredToken, getStoredUser } from '../utils/auth';
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -20,6 +21,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string, role: 'user' | 'owner') => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
+  handleSessionExpiration: () => void;
 }
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -28,13 +30,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    const token = getStoredToken();
+    const storedUser = getStoredUser();
+    
     if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
+      // Check if token has expired
+      if (checkTokenExpiration(token)) {
+        // Token is expired, clear auth data
+        clearAuthData();
+        setUser(null);
+        // Show session expiration alert
+        if (typeof window !== 'undefined') {
+          alert('Your session has expired. Please log in again.');
+        }
+      } else {
+        setUser(storedUser);
+      }
     }
     setIsLoading(false);
   }, []);
+
+  // Periodic token expiration check
+  useEffect(() => {
+    if (!user) return;
+
+    const checkExpiration = () => {
+      const token = getStoredToken();
+      if (token && checkTokenExpiration(token)) {
+        handleSessionExpiration();
+      }
+    };
+
+    // Check every 5 minutes
+    const interval = setInterval(checkExpiration, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
@@ -88,9 +119,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const handleSessionExpiration = () => {
+    clearAuthData();
+    setUser(null);
+    if (typeof window !== 'undefined') {
+      alert('Your session has expired. Please log in again.');
+    }
+  };
+
   const logout = async () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    clearAuthData();
     setUser(null);
   };
 
@@ -103,6 +141,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     register,
     logout,
     setUser,
+    handleSessionExpiration,
   }), [user, isLoading, error]);
 
   return (

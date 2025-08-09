@@ -226,7 +226,7 @@ const HomePage: React.FC = () => {
               </div>
             </div>
             {/* Right: Booking Form Card */}
-            <div className="flex-1 z-10 flex justify-center lg:justify-end w-full mt-12 lg:mt-0 animate-fade-in-up" style={{ animationDelay: '1s' }}>
+            <div className="flex-1 z-10 flex justify-center lg:justify-end w-full mt-8 lg:mt-0 animate-fade-in-up" style={{ animationDelay: '1s' }}>
               <LandingBookingForm />
             </div>
           </div>
@@ -329,62 +329,53 @@ const HomePage: React.FC = () => {
         </section> */}
 
         {/* Our Services Section */}
-        <section id="services" className="py-16 sm:py-20 lg:py-24">
+        <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-12 text-center">Services</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12">
-              {/* Global Coverage */}
-              <div className="flex flex-col items-start animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                <svg className="w-10 h-10 mb-4" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" stroke="#111" strokeWidth="2.2" />
-                  <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
-                </svg>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Airport Transfers</h3>
-                <p className="text-gray-600 text-sm mb-3">Seamless pickups and drop-offs from Ghana’s major airports on time, every time.
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+
+              {/* Card 1 */}
+              <div className="flex flex-col">
+                <img src="/images/airport-link.jpg" alt="City to City" className="rounded-md object-cover h-40 w-full mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Airport Transfers</h3>
+                <p className="text-gray-600 text-sm mb-2">
+                Seamless pickups and drop-offs from Ghana’s major airports on time, every time.
                 </p>
-                {/* <a href="#" className="inline-flex items-center text-green-700 font-medium hover:text-black transition-colors">
-                  Learn more
-                  <svg className="w-4 h-4 ml-1" fill="none" stroke="#059669" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
-                </a> */}
+                {/* <a href="#" className="text-sm font-medium text-green-600 hover:underline mt-auto">Learn more</a> */}
               </div>
 
-              {/* Professional Drivers */}
-              <div className="flex flex-col items-start animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <svg className="w-10 h-10 mb-4" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="7" r="4" stroke="#111" strokeWidth="2.2" />
-                  <path d="M5.5 21v-2A6.5 6.5 0 0112 12.5a6.5 6.5 0 016.5 6.5v2" />
-                </svg>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Out-of-Town Trips</h3>
-                <p className="text-gray-600 text-sm mb-3">Planning a getaway to Akosombo, Ada, or beyond? Our chauffeurs are ready for longer trips and regional escapes.</p>
-                
+              {/* Card 2 */}
+              <div className="flex flex-col">
+                <img src="/images/city-rides.jpeg" alt="24/7 Support" className="rounded-md object-cover h-40 w-full mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">City Rides</h3>
+                <p className="text-gray-600 text-sm mb-2">
+                  Explore the city anytime, anywhere—even long distances
+                </p>
               </div>
 
-              {/* Chauffeur by the Hour */}
-              <div className="flex flex-col items-start animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                <svg className="w-10 h-10 mb-4" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" stroke="#111" strokeWidth="2.2" />
-                  <polyline points="12,6 12,12 16,14" />
-                </svg>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Chauffeur by the hour</h3>
-                <p className="text-gray-600 text-sm mb-3">Hire a driver and vehicle by the hour. Perfect for events, meetings, or errands when flexibility is key.</p>
-                
+              {/* Card 3 */}
+              <div className="flex flex-col">
+                <img src="/images/out-of-town.jpeg" alt="Safety" className="rounded-md object-cover h-40 w-full mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Out-of-Town Trips</h3>
+                <p className="text-gray-600 text-sm mb-2">
+                Planning a getaway to Akosombo, Ada, or beyond? Our chauffeurs are ready for longer trips and regional escapes.
+                </p>
               </div>
 
-              {/* City Rides */}
-              <div className="flex flex-col items-start animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                <svg className="w-10 h-10 mb-4" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 17c0-2.21 3.582-4 8-4s8 1.79 8 4" stroke="#111" strokeWidth="2.2" />
-                  <circle cx="8.5" cy="9.5" r="2.5" />
-                  <circle cx="15.5" cy="9.5" r="2.5" />
-                </svg>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">City Rides</h3>
-                <p className="text-gray-600 text-sm mb-3">Explore the city anytime, anywhere—even long distances.</p>
-                
+              {/* Card 4 */}
+              <div className="flex flex-col">
+                <img src="/images/cheuffuer.jpeg" alt="Premium Cars" className="rounded-md object-cover h-40 w-full mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Chauffeur by the hour</h3>
+                <p className="text-gray-600 text-sm mb-2">
+                Hire a driver and vehicle by the hour. Perfect for events, meetings, or errands when flexibility is key.
+                </p>
               </div>
-
             </div>
           </div>
         </section>
+
+
+
         {/* How It Works Section */}
         <section id="how-it-works" className="py-16 bg-transparent">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -509,49 +500,198 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         </section>
+        
+        {/* Why Partner with FlexiRide Section */}
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-12 text-center">Why Partner with FlexiRide?</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {/* No Upfront Fees */}
+              <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                <div className="w-16 h-16 bg-[#277f75] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">No Upfront Fees</h3>
+                <p className="text-gray-600 text-sm">Join our network without any initial investment or setup costs.</p>
+              </div>
+
+              {/* We Bring the Clients */}
+              <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                <div className="w-16 h-16 bg-[#277f75] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">We Bring the Clients</h3>
+                <p className="text-gray-600 text-sm">You handle the service, we handle the marketing and customer acquisition.</p>
+              </div>
+
+              {/* Real-time Bookings */}
+              <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                <div className="w-16 h-16 bg-[#277f75] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12,6 12,12 16,14" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Real-time Bookings</h3>
+                <p className="text-gray-600 text-sm">Automated payments and instant booking confirmations for seamless operations.</p>
+              </div>
+
+              {/* Full Visibility */}
+              <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                <div className="w-16 h-16 bg-[#277f75] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Full Visibility</h3>
+                <p className="text-gray-600 text-sm">Complete control through our comprehensive partner dashboard.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        
         {/* FAQ Section */}
         <section className="py-16 bg-[#277f75]">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-12 text-center">Frequently Asked Questions</h2>
             <div className="space-y-4">
               {/* FAQ 1 */}
+              <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                  What is FlexiRide?
+                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <div className="mt-2 text-white">
+                  FlexiRide is a premium car booking platform that connects you to a network of trusted transport companies and licensed chauffeurs across Ghana. We don't own cars—we partner with the best providers to give you reliable service.
+                </div>
+              </details>
+              
+              {/* FAQ 2 */}
+              <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                  What services do you offer?
+                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <div className="mt-2 text-white">
+                  We offer: Airport pickups & drop-offs, In-city rides, Out-of-town trips (e.g., Akosombo, Cape Coast, Kumasi), Hourly bookings (ideal for events or meetings), Daily & multi-day rentals.
+                </div>
+              </details>
+              
+              {/* FAQ 3 */}
               <details className="group border border-gray-200 rounded-lg p-4">
                 <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
                   How do I book a ride?
                   <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
                 </summary>
                 <div className="mt-2 text-white">
-                  Simply select your service, fill in your details, and submit the booking form. You'll receive instant confirmation and details.
+                  You can book via our website or by sending us a message on WhatsApp. We'll collect your trip details, share available vehicles, and confirm your booking once payment is received.
                 </div>
               </details>
-              {/* FAQ 2 */}
-              <details className="group border border-gray-200 rounded-lg p-4">
-                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
-                  Can I cancel or modify my booking?
-                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
-                </summary>
-                <div className="mt-2 text-white">
-                  Yes, you can cancel or modify your booking up to 24 hours before pickup with no penalty.
-                </div>
-              </details>
-              {/* FAQ 3 */}
-              <details className="group border border-gray-200 rounded-lg p-4">
-                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
-                  What payment methods do you accept?
-                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
-                </summary>
-                <div className="mt-2 text-white">
-                  We accept all major credit/debit cards, mobile money, and bank transfers.
-                </div>
-              </details>
+              
               {/* FAQ 4 */}
               <details className="group border border-gray-200 rounded-lg p-4">
                 <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
-                  Are your cars insured and drivers vetted?
+                  Can I book it in advance?
                   <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
                 </summary>
                 <div className="mt-2 text-white">
-                  Yes, all our vehicles are fully insured and our drivers are thoroughly vetted for your safety.
+                  Yes! We encourage advance bookings, especially during peak seasons like Christmas and New Year. Early bookings ensure better car availability and a smoother experience.
+                </div>
+              </details>
+              
+              {/* FAQ 5 */}
+              <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                  Do all rides come with a driver?
+                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <div className="mt-2 text-white">
+                  Yes. Every FlexiRide booking includes a vetted, professional driver. We do not offer self-drive options at this time.
+                </div>
+              </details>
+              
+              {/* FAQ 6 */}
+              <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                  How are your drivers selected?
+                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <div className="mt-2 text-white">
+                  All drivers are employed by our partner transport companies and must be licensed, insured, and professionally trained. We only work with companies that meet our service standards.
+                </div>
+              </details>
+              
+              {/* FAQ 7 */}
+              <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                  What types of vehicles do you offer?
+                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <div className="mt-2 text-white">
+                  Our fleet includes everything from sedans and SUVs to luxury cars, depending on your needs. Availability varies based on your location, trip type, and date.
+                </div>
+              </details>
+              
+              {/* FAQ 8 */}
+              <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                  How do I pay?
+                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <div className="mt-2 text-white">
+                  Payment is made via mobile money, bank transfer, or a secure payment link. Bookings are only confirmed after payment is received.
+                </div>
+              </details>
+              
+              {/* FAQ 9 */}
+              <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                  Do I get a refund if I cancel?
+                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <div className="mt-2 text-white">
+                  You can cancel up to 24 hours before your ride for a full refund. Cancellations made within 24 hours are non-refundable.
+                </div>
+              </details>
+              
+              {/* FAQ 10 */}
+              <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                  Can I make special requests (e.g., baby car seat, specific driver, etc.)?
+                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <div className="mt-2 text-white">
+                  Yes, let us know during booking and we'll do our best to accommodate your needs.
+                </div>
+              </details>
+              
+              {/* FAQ 11 */}
+              <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                  Do I need to refill the fuel tank after the ride?
+                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <div className="mt-2 text-white">
+                  No. Fuel is included in your quote unless otherwise stated. For long-distance or multi-day rentals, we may ask you to cover fuel and driver accommodation costs.
+                </div>
+              </details>
+              
+              {/* FAQ 12 */}
+              <details className="group border border-gray-200 rounded-lg p-4">
+                <summary className="flex items-center justify-between cursor-pointer text-base font-semibold text-white group-open:text-green-600 transition">
+                  Is FlexiRide available outside Accra?
+                  <span className="ml-2 text-white group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <div className="mt-2 text-white">
+                  Yes! While Accra is our main base, we support rides to and from other regions through our network of transport partners.
                 </div>
               </details>
             </div>

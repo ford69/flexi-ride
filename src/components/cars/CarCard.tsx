@@ -53,17 +53,31 @@ const CarCard: React.FC<CarCardProps> = ({ car, selectedServiceType }) => {
 
   const serviceInfo = getServiceTypeInfo();
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col overflow-hidden border border-gray-100">
+    <div className={`bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col overflow-hidden border border-gray-100 ${!car.availability ? 'opacity-60' : ''}`}>
       <div className="relative">
         <img
           src={car.images[0] ? `${API_BASE_URL}${car.images[0]}` : 'https://images.pexels.com/photos/6894427/pexels-photo-6894427.jpeg'}
           alt={`${car.make} ${car.model}`}
           className="w-full h-48 object-cover rounded-t-2xl"
         />
-        {/* Featured badge */}
-        <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-md shadow">
-          Featured
-        </div>
+        {/* Unavailable overlay */}
+        {!car.availability && (
+          <div className="absolute inset-0 bg-black bg-opacity-40 rounded-t-2xl flex items-center justify-center">
+            <div className="text-white text-lg font-bold">Booked</div>
+          </div>
+        )}
+        {/* Availability badge */}
+        {!car.availability && (
+          <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-md shadow z-10">
+            Unavailable
+          </div>
+        )}
+        {/* Featured badge - only show if car is available */}
+        {car.availability && (
+          <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-md shadow">
+            Featured
+          </div>
+        )}
         {/* Favorite icon */}
         <div className="absolute top-3 right-3 bg-white rounded-full p-1 shadow cursor-pointer">
           <Heart className="h-5 w-5 text-gray-400" />
@@ -103,11 +117,17 @@ const CarCard: React.FC<CarCardProps> = ({ car, selectedServiceType }) => {
             <>₵--<span className="text-base font-normal text-gray-700">{serviceInfo.label}</span></>
           )}
         </div>
-          <Link to={`/cars/${car._id}${selectedServiceType ? `?serviceType=${selectedServiceType}` : ''}`}>
-            <Button variant="primary" fullWidth>
-              View Details
+          {car.availability ? (
+            <Link to={`/cars/${car._id}${selectedServiceType ? `?serviceType=${selectedServiceType}` : ''}`}>
+              <Button variant="primary" fullWidth>
+                View Details
+              </Button>
+            </Link>
+          ) : (
+            <Button variant="secondary" fullWidth disabled>
+              Unavailable
             </Button>
-          </Link>
+          )}
         </div>
       </div>
     </div>

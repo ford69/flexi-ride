@@ -26,15 +26,15 @@ const getAlertIcon = (type: AlertType['type']) => {
 const getAlertStyles = (type: AlertType['type']) => {
   switch (type) {
     case 'success':
-      return 'bg-success/10 border-success/20 text-success';
+      return 'bg-green-50 border-green-200 text-green-800';
     case 'error':
-      return 'bg-error/10 border-error/20 text-error';
+      return 'bg-red-50 border-red-200 text-red-800';
     case 'warning':
-      return 'bg-warning/10 border-warning/20 text-warning';
+      return 'bg-yellow-50 border-yellow-200 text-yellow-800';
     case 'info':
-      return 'bg-primary/10 border-primary/20 text-primary';
+      return 'bg-blue-50 border-blue-200 text-blue-800';
     default:
-      return 'bg-gray-100 border-gray-300 text-gray-800';
+      return 'bg-gray-50 border-gray-200 text-gray-800';
   }
 };
 
@@ -64,28 +64,28 @@ export const Alert: React.FC<AlertProps> = ({ alert, onClose, className = '' }) 
   );
 };
 
-// Toast-style alert for top-right corner
+// Toast-style alert for center-top
 export const ToastAlert: React.FC<AlertProps> = ({ alert, onClose, className = '' }) => {
   return (
     <div
-      className={`flex items-start p-4 border rounded-lg shadow-lg max-w-sm ${getAlertStyles(alert.type)} ${className}`}
+      className={`flex items-start p-6 border-2 rounded-xl shadow-2xl backdrop-blur-sm bg-white/95 ${getAlertStyles(alert.type)} ${className}`}
       role="alert"
     >
-      <div className="flex-shrink-0 mr-3 mt-0.5">
+      <div className="flex-shrink-0 mr-4 mt-1">
         {getAlertIcon(alert.type)}
       </div>
       <div className="flex-1 min-w-0">
         {alert.title && (
-          <h4 className="text-sm font-medium mb-1">{alert.title}</h4>
+          <h4 className="text-base font-semibold mb-2">{alert.title}</h4>
         )}
-        <p className="text-sm">{alert.message}</p>
+        <p className="text-sm leading-relaxed">{alert.message}</p>
       </div>
       <button
         onClick={() => onClose(alert.id)}
-        className="flex-shrink-0 ml-3 p-1 rounded-md hover:bg-black/10 transition-colors"
+        className="flex-shrink-0 ml-4 p-2 rounded-lg hover:bg-black/10 transition-colors"
         aria-label="Close alert"
       >
-        <X className="h-4 w-4" />
+        <X className="h-5 w-5" />
       </button>
     </div>
   );

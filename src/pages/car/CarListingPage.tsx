@@ -18,6 +18,9 @@ interface BookingData {
   email?: string;
   whatsapp?: string;
   serviceType?: string;
+  startDate?: string;
+  endDate?: string;
+  duration?: string;
 }
 
 const CarListingPage: React.FC = () => {
@@ -42,6 +45,14 @@ const CarListingPage: React.FC = () => {
         filtered = filtered.filter(car =>
           car.location.toLowerCase().includes(filters.location!.toLowerCase())
         );
+      }
+
+      if (filters.availability) {
+        if (filters.availability === 'available') {
+          filtered = filtered.filter(car => car.availability === true);
+        } else if (filters.availability === 'unavailable') {
+          filtered = filtered.filter(car => car.availability === false);
+        }
       }
 
       // Price filtering will be handled by service type pricing

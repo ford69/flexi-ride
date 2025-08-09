@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Coins, MapPin, Users, Briefcase, Clock, Car as CarIcon, RefreshCw } from 'lucide-react';
+import { Calendar, MapPin, Users, Briefcase, Clock, Car as CarIcon, RefreshCw } from 'lucide-react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Card, { CardContent, CardHeader, CardFooter } from '../ui/Card';
@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import PaymentButton from '../PaymentButton';
 import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
 import { alertMessages } from '../../utils/alerts';
+import { authenticatedFetch } from '../../utils/apiInterceptor';
 
 interface PaystackResponse {
   reference: string;
@@ -50,6 +51,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
     flightNumber: getString(mergedBookingData?.flightNumber || mergedBookingData?.airportFlightNumber),
     terminal: getString(mergedBookingData?.terminal || mergedBookingData?.airportTerminal),
     airportPickupTime: getString(mergedBookingData?.airportPickupTime),
+    airportReturnDate: getString(mergedBookingData?.airportReturnDate || mergedBookingData?.returnDate),
+    airportReturnTime: getString(mergedBookingData?.airportReturnTime || mergedBookingData?.returnTime),
     from: getString(mergedBookingData?.from),
     to: getString(mergedBookingData?.to),
     airportPassengers: getNumber(mergedBookingData?.airportPassengers),
@@ -72,7 +75,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
     email: getString(mergedBookingData?.email),
     whatsapp: getString(mergedBookingData?.whatsapp),
     serviceType: getString(mergedBookingData?.serviceType),
-    return: mergedBookingData?.return ?? false,
+    return: getBoolean(mergedBookingData?.return || mergedBookingData?.airportReturn),
   }));
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -119,35 +122,30 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
       const hours = parseInt(fields.duration) || 1;
       totalPrice = hours * servicePrice;
     } else if (serviceType === 'airport') {
-      totalPrice = servicePrice; // Per trip pricing
+      // For airport transfers, if return is selected, add return day price
+      if (fields.return === true) {
+        totalPrice = servicePrice * 2; // Pickup day + Return day
+        console.log('[BookingForm] Airport return trip pricing:', {
+          servicePrice,
+          returnSelected: fields.return,
+          totalPrice: servicePrice * 2
+        });
+      } else {
+        totalPrice = servicePrice; // Single trip pricing
+        console.log('[BookingForm] Airport single trip pricing:', {
+          servicePrice,
+          returnSelected: fields.return,
+          totalPrice: servicePrice
+        });
+      }
     }
     
     return totalPrice; // Service charge is already included in the price
   };
 
-  const calculateBasePrice = () => {
-    const servicePrice = getServiceTypePrice();
-    if (servicePrice === 0) return 0;
-    
-    // Extract base price from total price (remove service charge)
-    const basePricePerUnit = Math.round(servicePrice / 1.25);
-    
-    if (serviceType === 'daily' || serviceType === 'out-of-town') {
-      const days = calculateDays();
-      return days * basePricePerUnit;
-    } else if (serviceType === 'hourly') {
-      const hours = parseInt(fields.duration) || 1;
-      return hours * basePricePerUnit;
-    } else if (serviceType === 'airport') {
-      return basePricePerUnit; // Per trip pricing
-    }
-    
-    return 0;
-  };
 
-  const calculateServiceCharge = () => {
-    return calculateTotalPrice() - calculateBasePrice();
-  };
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,24 +187,6 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
     setIsSubmitting(true);
     
     try {
-      const token = localStorage.getItem('token');
-      
-      // Debug token
-      console.log('[BookingForm] Token check:', {
-        hasToken: !!token,
-        tokenLength: token?.length,
-        tokenStart: token?.substring(0, 20) + '...'
-      });
-      
-      if (!token) {
-        showAlert({
-          type: 'error',
-          title: 'Authentication Error',
-          message: 'Please log in to create a booking.'
-        });
-        navigate('/login', { state: { from: `/cars/${car._id}` } });
-        return;
-      }
       
       // Build payload, only including non-empty values
       // Clean payload: only send fields relevant to the selected serviceType
@@ -232,6 +212,10 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
         payload.airportPickupTime = fields.airportPickupTime;
         payload.airportPassengers = fields.airportPassengers;
         payload.return = fields.return;
+        if (fields.return === true) {
+          payload.airportReturnDate = fields.airportReturnDate;
+          payload.airportReturnTime = fields.airportReturnTime;
+        }
       } else if (serviceType === 'daily') {
         payload.dailyPickup = fields.dailyPickup;
         payload.dailyPassengers = fields.dailyPassengers;
@@ -262,14 +246,26 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
 
       // Debug: Log payload before sending
       console.log('[BookingForm] Submitting booking payload:', payload);
+      console.log('[BookingForm] Return field value:', fields.return);
+      console.log('[BookingForm] Return field type:', typeof fields.return);
       console.log('[BookingForm] API URL:', buildApiUrl(API_ENDPOINTS.BOOKINGS.CREATE));
-      console.log('[BookingForm] Authorization header:', `Bearer ${token?.substring(0, 20)}...`);
 
-      const response = await fetch(buildApiUrl(API_ENDPOINTS.BOOKINGS.CREATE), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(payload),
-      });
+      const response = await authenticatedFetch(
+        buildApiUrl(API_ENDPOINTS.BOOKINGS.CREATE),
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        },
+        () => {
+          // Session expired callback
+          showAlert({
+            type: 'error',
+            title: 'Session Expired',
+            message: 'Your session has expired. Please log in again.'
+          });
+          navigate('/login', { state: { from: `/cars/${car._id}` } });
+        }
+      );
 
       // Debug: Log response status
       console.log('[BookingForm] Booking response status:', response.status);
@@ -383,13 +379,37 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
                 <>
                     <DetailItem icon={<MapPin size={16} />} label="From" value={getString(bookingData.from)} />
                     <DetailItem icon={<MapPin size={16} />} label="To" value={getString(bookingData.to)} />
+                    <DetailItem icon={<Calendar size={16} />} label="Pickup Date" value={getString(bookingData.airportPickupDate || bookingData.startDate)} />
+                    <DetailItem icon={<Clock size={16} />} label="Pickup Time" value={getString(bookingData.airportPickupTime)} />
                     <DetailItem icon={<Users size={16} />} label="Passengers" value={getNumber(bookingData.airportPassengers)} />
+                    <DetailItem icon={<RefreshCw size={16} />} label="Return" value={getBoolean(bookingData.return || bookingData.airportReturn)} />
+                    {getBoolean(bookingData.return || bookingData.airportReturn) && getString(bookingData.airportReturnDate) && (
+                        <DetailItem icon={<Calendar size={16} />} label="Return Date" value={getString(bookingData.airportReturnDate)} />
+                    )}
+                    {getBoolean(bookingData.return || bookingData.airportReturn) && getString(bookingData.airportReturnTime) && (
+                        <DetailItem icon={<Clock size={16} />} label="Return Time" value={getString(bookingData.airportReturnTime)} />
+                    )}
+                    
+                    {/* Price Breakdown for Airport Return Trips */}
+                    {serviceType === 'airport' && getBoolean(bookingData.return || bookingData.airportReturn) && (
+                        <div className="border-t border-green-200 pt-3 mt-3">
+                            <div className="text-sm font-medium text-gray-700 mb-2">Price Breakdown:</div>
+                            <DetailItem icon={<Calendar size={16} />} label="Pickup Day" value={`₵${getServiceTypePrice().toLocaleString()}`} />
+                            <DetailItem icon={<RefreshCw size={16} />} label="Return Day" value={`₵${getServiceTypePrice().toLocaleString()}`} />
+                            <div className="flex justify-between items-center text-sm font-semibold text-gray-900 pt-2 border-t border-green-200">
+                                <span>Total:</span>
+                                <span>₵{(getServiceTypePrice() * 2).toLocaleString()}</span>
+                            </div>
+                        </div>
+                    )}
                 </>
             )}
 
             {serviceType === 'daily' && (
                 <>
                     <DetailItem icon={<MapPin size={16} />} label="Pickup" value={getString(bookingData.dailyPickup)} />
+                    <DetailItem icon={<Calendar size={16} />} label="Start Date" value={getString(bookingData.startDate)} />
+                    <DetailItem icon={<Calendar size={16} />} label="End Date" value={getString(bookingData.endDate)} />
                     <DetailItem icon={<Users size={16} />} label="Passengers" value={getNumber(bookingData.dailyPassengers)} />
                     <DetailItem icon={<CarIcon size={16} />} label="With Driver" value={getBoolean(bookingData.withDriver)} />
                 </>
@@ -399,6 +419,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
                 <>
                     <DetailItem icon={<MapPin size={16} />} label="Destination" value={getString(bookingData.outTownCity)} />
                     <DetailItem icon={<MapPin size={16} />} label="Pickup" value={getString(bookingData.outTownPickup)} />
+                    <DetailItem icon={<Calendar size={16} />} label="Date" value={getString(bookingData.outTownDate || bookingData.startDate)} />
+                    <DetailItem icon={<Clock size={16} />} label="Time" value={getString(bookingData.outTownTime)} />
                     <DetailItem icon={<Calendar size={16} />} label="Days" value={getString(bookingData.outTownDays)} />
                     <DetailItem icon={<Users size={16} />} label="Passengers" value={getNumber(bookingData.outTownPassengers)} />
                     <DetailItem icon={<RefreshCw size={16} />} label="Return Trip" value={getBoolean(bookingData.outTownReturn)} />
@@ -408,6 +430,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
             {serviceType === 'hourly' && (
                 <>
                     <DetailItem icon={<MapPin size={16} />} label="Pickup" value={getString(bookingData.pickupAddress)} />
+                    <DetailItem icon={<Calendar size={16} />} label="Date" value={getString(bookingData.pickupDate || bookingData.startDate)} />
+                    <DetailItem icon={<Clock size={16} />} label="Time" value={getString(bookingData.pickupTime)} />
                     <DetailItem icon={<Clock size={16} />} label="Duration (hrs)" value={getString(bookingData.duration)} />
                     <DetailItem icon={<Users size={16} />} label="Passengers" value={getNumber(bookingData.hourlyPassengers)} />
                 </>
@@ -428,7 +452,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
         </div>
       )}
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-6 pt-6">
+        <CardContent className="space-y-4 pt-6">
           {error && (
             <div className="bg-red-100 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-md text-sm">
               {error}
@@ -439,8 +463,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
           
           {/* Editable booking fields based on serviceType */}
           {serviceType === 'airport' && (
-            <div className="space-y-4">
-              <div>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-4">
                 <Input
                   type="date"
                   label="Pickup Date"
@@ -451,20 +475,17 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
                   className="bg-gray-100 text-gray-800 placeholder-gray-400 border-gray-300"
                   icon={<Calendar className="h-5 w-5 text-gray-400" />}
                 />
+                <Input
+                  type="time"
+                  label="Pickup Time"
+                  value={fields.airportPickupTime}
+                  onChange={e => setFields(f => ({ ...f, airportPickupTime: e.target.value }))}
+                  required
+                  className="bg-gray-100 text-gray-800 placeholder-gray-400 border-gray-300"
+                  icon={<Clock className="h-5 w-5 text-gray-400" />}
+                />
               </div>
-              <div className={`grid ${fields.return === true ? 'grid-cols-3' : 'grid-cols-2'} gap-4`}>
-                {fields.return === true && (
-                  <Input
-                    type="date"
-                    label="Return Date"
-                    value={fields.endDate}
-                    onChange={e => setFields(f => ({ ...f, endDate: e.target.value }))}
-                    min={fields.startDate || new Date().toISOString().split('T')[0]}
-                    required
-                    className="bg-gray-100 text-gray-800 placeholder-gray-400 border-gray-300"
-                    icon={<Calendar className="h-5 w-5 text-gray-400" />}
-                  />
-                )}
+              <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="Flight Number"
                   type="text"
@@ -486,9 +507,72 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
                   required
                 />
               </div>
+              
+              {/* Return Trip Checkbox */}
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="return"
+                  checked={fields.return}
+                  onChange={e => setFields(f => ({ ...f, return: e.target.checked }))}
+                  className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                />
+                <label htmlFor="return" className="text-sm font-medium text-gray-700">
+                  Add Return Trip
+                </label>
+              </div>
+              
+              {/* Return Date and Time Fields - Only show if return is selected */}
+              {fields.return === true && (
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    type="date"
+                    label="Return Date"
+                    value={fields.airportReturnDate}
+                    onChange={e => setFields(f => ({ ...f, airportReturnDate: e.target.value }))}
+                    min={fields.startDate || new Date().toISOString().split('T')[0]}
+                    required={fields.return === true}
+                    className="bg-gray-100 text-gray-800 placeholder-gray-400 border-gray-300"
+                    icon={<Calendar className="h-5 w-5 text-gray-400" />}
+                  />
+                  <Input
+                    type="time"
+                    label="Return Time"
+                    value={fields.airportReturnTime}
+                    onChange={e => setFields(f => ({ ...f, airportReturnTime: e.target.value }))}
+                    required={fields.return === true}
+                    className="bg-gray-100 text-gray-800 placeholder-gray-400 border-gray-300"
+                    icon={<Clock className="h-5 w-5 text-gray-400" />}
+                  />
+                </div>
+              )}
             </div>
           )}
           {serviceType === 'daily' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                type="date"
+                label="Start Date"
+                value={fields.startDate}
+                onChange={e => setFields(f => ({ ...f, startDate: e.target.value }))}
+                min={new Date().toISOString().split('T')[0]}
+                required
+                className="bg-gray-100 text-gray-800 placeholder-gray-400 border-gray-300"
+                icon={<Calendar className="h-5 w-5 text-gray-400" />}
+              />
+              <Input
+                type="date"
+                label="End Date"
+                value={fields.endDate}
+                onChange={e => setFields(f => ({ ...f, endDate: e.target.value }))}
+                min={fields.startDate || new Date().toISOString().split('T')[0]}
+                required
+                className="bg-gray-100 text-gray-800 placeholder-gray-400 border-gray-300"
+                icon={<Calendar className="h-5 w-5 text-gray-400" />}
+              />
+            </div>
+          )}
+          {serviceType === 'out-of-town' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 type="date"
@@ -630,40 +714,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
             </div>
           )}
 
-          {fields.startDate && fields.endDate && (
-            <div className="bg-gray-100 p-4 rounded-xl animate-fade-in border border-gray-200">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-600">Base Price:</span>
-                  <span className="text-sm font-medium text-gray-800">₵{calculateBasePrice().toLocaleString()}</span>
-          </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-600">Service Charge (25%):</span>
-                  <span className="text-sm font-medium text-gray-800">₵{calculateServiceCharge().toLocaleString()}</span>
-              </div>
-                <div className="border-t border-gray-300 pt-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-bold text-gray-800">Total Price:</span>
-                    <div className="flex items-center text-gray-900">
-                      <Coins className="h-5 w-5 text-green-600 mr-2" />
-                      <span className="font-bold text-2xl">₵{calculateTotalPrice().toLocaleString()}</span>
-              </div>
-                  </div>
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 text-right mt-2">
-                {serviceType === 'daily' || serviceType === 'out-of-town' ? (
-                  `${calculateDays()} ${calculateDays() > 1 ? 'days' : 'day'} at ₵${getServiceTypePrice().toLocaleString()}/day`
-                ) : serviceType === 'hourly' ? (
-                  `${fields.duration || 1} hour(s) at ₵${getServiceTypePrice().toLocaleString()}/hour`
-                ) : serviceType === 'airport' ? (
-                  `₵${getServiceTypePrice().toLocaleString()} per trip`
-                ) : (
-                  'Price varies by service type'
-                )}
-              </p>
-            </div>
-          )}
+
         </CardContent>
         <CardFooter className="bg-white pt-6">
           {showPayment && user ? (
@@ -686,7 +737,15 @@ const BookingForm: React.FC<BookingFormProps> = ({ car, bookingData }) => {
               disabled={!user?.isVerified || isSubmitting || hasSubmitted}
               isLoading={isSubmitting}
             >
-              Book Now
+              {serviceType === 'daily' || serviceType === 'out-of-town' ? (
+                `Book Now - ₵${calculateTotalPrice().toLocaleString()}`
+              ) : serviceType === 'hourly' ? (
+                `Book Now - ₵${calculateTotalPrice().toLocaleString()}`
+              ) : serviceType === 'airport' ? (
+                `Book Now - ₵${calculateTotalPrice().toLocaleString()}`
+              ) : (
+                'Book Now'
+              )}
             </Button>
           )}
         </CardFooter>

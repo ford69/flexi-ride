@@ -21,6 +21,8 @@ interface FormState {
   airportPassengers: number;
   airportFlightNumber: string;
   airportTerminal: string;
+  airportReturnDate: string;
+  airportReturnTime: string;
   dailyStart: string;
   dailyEnd: string;
   dailyPickup: string;
@@ -53,6 +55,8 @@ const initialState: FormState = {
   airportPassengers: 1,
   airportFlightNumber: '',
   airportTerminal: '',
+  airportReturnDate: '',
+  airportReturnTime: '',
   dailyStart: '',
   dailyEnd: '',
   dailyPickup: '',
@@ -181,6 +185,10 @@ const LandingBookingForm: React.FC = () => {
       params.passengers = String(form.airportPassengers);
       params.flightNumber = form.airportFlightNumber;
       params.terminal = form.airportTerminal;
+      if (form.airportReturn) {
+        params.returnDate = form.airportReturnDate;
+        params.returnTime = form.airportReturnTime;
+      }
     } else if (activeTab === 'daily') {
       params.start = form.dailyStart;
       params.end = form.dailyEnd;
@@ -215,9 +223,9 @@ const LandingBookingForm: React.FC = () => {
   return (
     <>
       {loading && <Loader />}
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg mt-0 md:mt-14">
+      <div className="bg-white rounded-2xl shadow-2xl p-4 w-full max-w-sm mt-0 md:mt-14">
         {/* Tabs */}
-        <div className="flex mb-6 border-b border-gray-200">
+        <div className="flex mb-4 border-b border-gray-200">
           {SERVICE_TABS.map(tab => (
             <button
               key={tab.value}
@@ -229,7 +237,7 @@ const LandingBookingForm: React.FC = () => {
             </button>
           ))}
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-2.5">
           {/* Common Fields */}
           <input
             className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
@@ -262,7 +270,7 @@ const LandingBookingForm: React.FC = () => {
                   <LocationInput
                     value={form.from || ""}
                     onSelect={(details) => setForm(prev => ({ ...prev, from: details.address }))}
-                    placeholder=""
+                    placeholder="From: Airport"
                   />
                 </div>
                 <div className="relative">
@@ -270,38 +278,34 @@ const LandingBookingForm: React.FC = () => {
                   <LocationInput
                     value={form.to || ""}
                     onSelect={(details) => setForm(prev => ({ ...prev, to: details.address }))}
-                    placeholder=""
+                    placeholder="To: Destination"
                   />
                 </div>
               </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="date"
-                      className="w-full bg-gray-100 border border-gray-300 rounded-lg pl-10 pr-3 py-3 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
-                      placeholder="Pickup date"
-                      name="airportPickupDate"
-                      value={form.airportPickupDate as string}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="relative">
+                  <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="date"
+                    className="w-full bg-gray-100 border border-gray-300 rounded-lg pl-8 pr-2 py-2 text-sm text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
+                    placeholder="Pickup date"
+                    name="airportPickupDate"
+                    value={form.airportPickupDate as string}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
-                <div className="flex-1">
-                  <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="time"
-                      className="w-full bg-gray-100 border border-gray-300 rounded-lg pl-10 pr-3 py-3 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
-                      placeholder="Pickup time"
-                      name="airportPickupTime"
-                      value={form.airportPickupTime as string}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
+                <div className="relative">
+                  <Clock className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="time"
+                    className="w-full bg-gray-100 border border-gray-300 rounded-lg pl-8 pr-2 py-2 text-sm text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
+                    placeholder="Pickup time"
+                    name="airportPickupTime"
+                    value={form.airportPickupTime as string}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
               </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -326,6 +330,37 @@ const LandingBookingForm: React.FC = () => {
             <input type="checkbox" name="airportReturn" checked={!!form.airportReturn} onChange={handleChange} className="mr-2" />
             Add Return
           </label>
+          
+          {/* Return Date and Time - Only show if return is selected */}
+          {form.airportReturn && (
+            <div className="grid grid-cols-2 gap-2 animate-fade-in">
+              <div className="relative">
+                <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="date"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg pl-8 pr-2 py-2 text-sm text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
+                  placeholder="Return date"
+                  name="airportReturnDate"
+                  value={form.airportReturnDate as string}
+                  onChange={handleChange}
+                  required={!!form.airportReturn}
+                />
+              </div>
+              <div className="relative">
+                <Clock className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="time"
+                  className="w-full bg-gray-100 border border-gray-300 rounded-lg pl-8 pr-2 py-2 text-sm text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
+                  placeholder="Return time"
+                  name="airportReturnTime"
+                  value={form.airportReturnTime as string}
+                  onChange={handleChange}
+                  required={!!form.airportReturn}
+                />
+              </div>
+            </div>
+          )}
+          
           <div className="flex items-center gap-2 mt-2">
             <Users className="h-5 w-5 text-gray-400" />
             <span className="text-sm text-gray-500">Passengers</span>
@@ -481,7 +516,7 @@ const LandingBookingForm: React.FC = () => {
               </div>
             </div>
           )}
-          <Button type="submit" variant="primary" className="w-full bg-gradient-to-r from-black to-black text-white font-bold rounded-lg py-3 mt-4 shadow-lg hover:from-gray-600 hover:to-gray-800 transition-all">Search</Button>
+          <Button type="submit" variant="primary" className="w-full bg-gradient-to-r from-black to-black text-white font-bold rounded-lg py-2 mt-2 shadow-lg hover:from-gray-600 hover:to-gray-800 transition-all">Search</Button>
         </form>
       </div>
     </>

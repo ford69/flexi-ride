@@ -27,6 +27,8 @@ router.post('/', protect, async (req, res) => {
       flightNumber,
       terminal,
       return: isReturn,
+      airportReturnDate,
+      airportReturnTime,
       airportPassengers,
       from,
       to,
@@ -67,6 +69,8 @@ router.post('/', protect, async (req, res) => {
       flightNumber,
       terminal,
       return: isReturn,
+      airportReturnDate,
+      airportReturnTime,
       airportPassengers,
       from,
       to,
@@ -210,6 +214,16 @@ router.patch('/:id', protect, async (req, res) => {
 
     console.log('PATCH /api/bookings/:id - Saving booking with status:', booking.status);
     await booking.save();
+    
+    // Update car availability based on booking status
+    if (booking.status === 'confirmed') {
+      console.log('PATCH /api/bookings/:id - Updating car availability to false');
+      await Car.findByIdAndUpdate(booking.carId, { availability: false });
+    } else if (booking.status === 'cancelled' || booking.status === 'completed') {
+      console.log('PATCH /api/bookings/:id - Updating car availability to true');
+      await Car.findByIdAndUpdate(booking.carId, { availability: true });
+    }
+    
     console.log('PATCH /api/bookings/:id - Booking saved successfully');
     res.json(booking);
   } catch (error) {

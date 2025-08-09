@@ -7,10 +7,15 @@ interface BookingData {
   pickupTime?: string;
   passengers?: number;
   return?: boolean;
+  returnDate?: string;
+  returnTime?: string;
   name?: string;
   email?: string;
   whatsapp?: string;
   serviceType?: string;
+  startDate?: string;
+  endDate?: string;
+  duration?: string;
 }
 
 interface BookingSummarySidebarProps {
@@ -22,7 +27,10 @@ const BookingSummarySidebar: React.FC<BookingSummarySidebarProps> = ({ bookingDa
     return null;
   }
 
-  const { from, to, pickupDate, pickupTime, passengers, return: returnTrip, name, email, whatsapp, serviceType } = bookingData;
+  const { 
+    from, to, pickupDate, pickupTime, passengers, return: returnTrip, 
+    returnDate, returnTime, name, email, whatsapp, serviceType, startDate, endDate, duration
+  } = bookingData;
 
   const DetailItem = ({ label, value }: { label: string; value?: string | number | boolean }) => {
     if (value === undefined || value === null || value === '') {
@@ -70,8 +78,29 @@ const BookingSummarySidebar: React.FC<BookingSummarySidebarProps> = ({ bookingDa
           <DetailItem label="Pickup Time" value={pickupTime} />
           <DetailItem label="Passengers" value={passengers} />
           <DetailItem label="Return" value={returnTrip} />
+          {returnTrip && returnDate && (
+            <DetailItem label="Return Date" value={returnDate} />
+          )}
+          {returnTrip && returnTime && (
+            <DetailItem label="Return Time" value={returnTime} />
+          )}
+          
+          {/* Show date range for daily/out-of-town services */}
+          {(serviceType === 'daily' || serviceType === 'out-of-town') && startDate && endDate && (
+            <>
+              <DetailItem label="Start Date" value={startDate} />
+              <DetailItem label="End Date" value={endDate} />
+            </>
+          )}
+          
+          {/* Show duration for hourly service */}
+          {serviceType === 'hourly' && duration && (
+            <DetailItem label="Duration" value={`${duration} hour(s)`} />
+          )}
         </div>
       </div>
+      
+
       
       <div className="border-t pt-6 space-y-4">
         <h4 className="font-semibold text-gray-700 text-sm border-b pb-2">Contact Info</h4>

@@ -344,11 +344,11 @@ const OwnerDashboard: React.FC = () => {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-700">
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-900 uppercase">Car</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-900 uppercase">Status</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-900 uppercase">Service Types</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-900 uppercase">Location</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-900 uppercase">Actions</th>
+                        <th className="px-4 py-3 text-left text-xs text-black uppercase">Car</th>
+                        <th className="px-4 py-3 text-left text-xs text-black uppercase">Status</th>
+                        <th className="px-4 py-3 text-left text-xs text-black uppercase">Service Types</th>
+                        <th className="px-4 py-3 text-left text-xs text-black uppercase">Location</th>
+                        <th className="px-4 py-3 text-right text-xs text-black uppercase">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -362,8 +362,8 @@ const OwnerDashboard: React.FC = () => {
                                 className="h-10 w-10 rounded-md object-cover mr-3" 
                               />
                               <div>
-                                <div className="text-gray-500">{car.make} {car.model}</div>
-                                <div className="text-xs text-gray-400">{car.year} • {car.type}</div>
+                                <div className="text-gray-800 font-bold">{car.make} {car.model}</div>
+                                <div className="text-xs text-gray-600">{car.year} • {car.type}</div>
                               </div>
                             </div>
                           </td>
@@ -390,7 +390,7 @@ const OwnerDashboard: React.FC = () => {
                               <span className="text-gray-400 text-sm">No services</span>
                             )}
                           </td>
-                          <td className="px-4 py-4 text-gray-400">{car.location}</td>
+                          <td className="px-4 py-4 text-gray-800 font-bold">{car.location}</td>
                           <td className="px-4 py-4 text-right">
                             <div className="flex justify-end gap-2">
                               <Link to={`/cars/${car._id}`}>
@@ -436,6 +436,7 @@ const OwnerDashboard: React.FC = () => {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-700">
+                        
                         <th className="px-4 py-3 text-left text-xs text-black uppercase">Customer</th>
                         <th className="px-4 py-3 text-left text-xs text-black uppercase">Car</th>
                         <th className="px-4 py-3 text-left text-xs text-black uppercase">Dates</th>
@@ -466,8 +467,8 @@ const OwnerDashboard: React.FC = () => {
                                   </div>
                                 )}
                                 <div>
-                                  <div className="text-gray-400">{userName}</div>
-                                  <div className="text-xs text-gray-300">{userEmail}</div>
+                                  <div className="text-gray-800 font-bold">{userName}</div>
+                                  <div className="text-xs text-gray-600">{userEmail}</div>
                                 </div>
                               </div>
                             </td>
@@ -478,12 +479,12 @@ const OwnerDashboard: React.FC = () => {
                                   alt="" 
                                   className="h-8 w-8 rounded-md object-cover mr-2" 
                                 />
-                                <div className="text-gray-400">
+                                <div className="text-gray-800 font-bold">
                                   {car ? `${car.make} ${car.model}` : 'Unknown Car'}
                                 </div>
                               </div>
                             </td>
-                            <td className="px-4 py-4 text-gray-400">
+                            <td className="px-4 py-4 text-gray-800 font-bold">
                               <div className="flex items-center">
                                 <Calendar className="h-4 w-4 text-primary mr-2" />
                                 <span>
@@ -491,7 +492,7 @@ const OwnerDashboard: React.FC = () => {
                                 </span>
                               </div>
                             </td>
-                            <td className="px-4 py-4 text-gray-400">¢{booking.totalPrice}</td>
+                            <td className="px-4 py-4 text-gray-800 font-bold">¢{booking.totalPrice}</td>
                             <td className="px-4 py-4">
                               <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(booking.status)}`}>
                                 {getStatusIcon(booking.status)}

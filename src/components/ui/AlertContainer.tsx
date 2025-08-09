@@ -7,8 +7,8 @@ export const AlertContainer: React.FC = () => {
 
   return (
     <>
-      {/* Toast notifications - top-right corner */}
-      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+      {/* Toast notifications - center-top */}
+      <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 space-y-3 max-w-md w-full px-4">
         {state.alerts
           .filter(alert => !alert.persistent)
           .map(alert => (
@@ -16,7 +16,7 @@ export const AlertContainer: React.FC = () => {
               key={alert.id}
               alert={alert}
               onClose={removeAlert}
-              className="animate-in slide-in-from-right-2 duration-300"
+              className="animate-in slide-in-from-top-4 duration-500"
             />
           ))}
       </div>

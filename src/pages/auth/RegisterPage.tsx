@@ -5,6 +5,8 @@ import { Mail, Lock, User } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAlert } from '../../contexts/AlertContext';
+import { alertMessages } from '../../utils/alerts';
 import logo from '/public/images/flexi-logo.png';
 
 type FormValues = {
@@ -17,6 +19,7 @@ type FormValues = {
 
 const RegisterPage: React.FC = () => {
   const { register: registerUser } = useAuth();
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
   const [authError, setAuthError] = useState<string | null>(null);
 
@@ -38,8 +41,8 @@ const RegisterPage: React.FC = () => {
       setAuthError(null);
       await registerUser(data.name, data.email, data.password, data.role);
 
-      // ✅ Redirect to login and show message
-      alert('Registration successful! Please log in.');
+      // ✅ Show success alert and redirect to login
+      showAlert({ type: 'success', ...alertMessages.registrationSuccess });
       navigate('/login', { replace: true });
     } catch (error:unknown) {
       const message = error instanceof Error ? error.message : 'Registration failed';

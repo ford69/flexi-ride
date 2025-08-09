@@ -5,6 +5,8 @@ import { Mail, Lock } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAlert } from '../../contexts/AlertContext';
+import { alertMessages } from '../../utils/alerts';
 import logo from '/public/images/flexi-logo.png';
 
 type FormValues = {
@@ -14,6 +16,7 @@ type FormValues = {
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
   const [authError, setAuthError] = useState<string | null>(null);
 
@@ -28,7 +31,9 @@ const LoginPage: React.FC = () => {
       setAuthError(null);
       await login(data.email, data.password);
 
-      // ✅ Role-based redirection
+      // ✅ Show success alert and role-based redirection
+      showAlert({ type: 'success', ...alertMessages.loginSuccess });
+      
       const storedUser = localStorage.getItem('user');
       const user = storedUser ? JSON.parse(storedUser) : null;
 

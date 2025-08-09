@@ -307,7 +307,7 @@ const CarDetailPage: React.FC = () => {
                 <div className="flex items-start">
                   <Award className="h-5 w-5 text-green-700 mr-3 mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="font-medium text-gray-900">Free Cancellation</h3>
+                    <h3 className="font-medium text-gray-900">Cancellation</h3>
                     <p className="text-gray-600 text-sm">Cancel up to 24 hours before your trip for a full refund.</p>
                   </div>
                 </div>
